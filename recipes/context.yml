@@ -3,6 +3,13 @@ attribute:
   nargs: '?'
   help: "Display values of specified attribute within --table."
 
+format:
+  flags: ['--format']
+  type: str
+  default: 'table'
+  choices: ['table', 'json']
+  help: "format of result"
+
 table:
   flags: ['--table']
   help: "Table to inspect."

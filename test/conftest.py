@@ -97,7 +97,10 @@ def set_config():
 
         adr.configuration.config = config
         for mod in adr_modules:
-            reload(mod)
+            try:
+                reload(mod)
+            except ImportError:
+                pass
 
     return inner
 
