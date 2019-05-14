@@ -1,7 +1,0 @@
-from: firefox-files
-groupby:
-    - repo.changeset.id12
-    - repo.changeset.date
-sort:
-    repo.changeset.date: desc
-limit: 50

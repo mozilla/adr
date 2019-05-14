@@ -6,23 +6,7 @@ from pytest import mark, xfail
 
 from adr.recipe import is_fail
 
-TEST_CASES = [
-    "activedata_usage",
-    "backout_rate",
-    "code_coverage --path caps --rev 45715ece25fc",
-    "code_coverage_by_suite --path caps --rev 45715ece25fc",
-    "config_durations",
-    "files_with_coverage",
-    "intermittent_tests",
-    "intermittent_test_data",
-    "raw_coverage --path caps --rev 45715ece25fc",
-    "test_durations",
-    "tests_config_times -t test-windows10-64/opt-awsy-e10s",
-    "tests_in_duration",
-    "try_efficiency",
-    "try_usage",
-    "try_users",
-]
+TEST_CASES = []
 
 
 @mark.skipif(os.getenv("TRAVIS_EVENT_TYPE") != "cron", reason="Not run by cron job")
