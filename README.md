@@ -1,11 +1,11 @@
-[![Build Status](https://travis-ci.org/mozilla/active-data-recipes.svg?branch=master)](https://travis-ci.org/mozilla/active-data-recipes)
+[![Build Status](https://travis-ci.org/mozilla/adr.svg?branch=master)](https://travis-ci.org/mozilla/adr)
 [![PyPI version](https://badge.fury.io/py/adr.svg)](https://badge.fury.io/py/adr)
 [![PyPI version](https://readthedocs.org/projects/active-data-recipes/badge/?version=latest)](https://active-data-recipes.readthedocs.io)
 
 # adr
 
 This is the runner for [ActiveData recipes][0], it provides a command line interface and flask web
-app. [ActiveData][4] is a large data warehouse containing billions of records related to Mozilla's
+app. [ActiveData][1] is a large data warehouse containing billions of records related to Mozilla's
 CI, version control, bug tracking and much more. An ActiveData "recipe" is a Python snippet that
 runs one or more queries against ActiveData, then performs some post-processing before returning the
 results.
@@ -20,7 +20,7 @@ than starting here.
 
 Here are some of the known repositories containing ActiveData recipes:
 
-* [active-data-recipes][3] - Misc recipes that are mostly untriaged. Good for finding examples to
+* [active-data-recipes][2] - Misc recipes that are mostly untriaged. Good for finding examples to
   copy from.
 
 
@@ -53,10 +53,10 @@ For recipe specific options see:
 
 # Contributing
 
-To contribute to `active-data-recipes` first [install poetry][2], then run:
+To contribute to `adr` first [install poetry][3], then run:
 
-    $ git clone https://github.com/mozilla/active-data-recipes
-    $ cd active-data-recipes
+    $ git clone https://github.com/mozilla/adr
+    $ cd adr
     $ poetry install
 
 Now you can use `poetry run` to perform various development commands:
@@ -84,7 +84,6 @@ Alternatively activate the `poetry` shell ahead of time:
     $ tox
 
 [0]: https://active-data-recipes.readthedocs.io
-[1]: https://active-data-recipes.readthedocs.io/en/latest/recipes.html
-[2]: https://poetry.eustace.io/docs/#installation
-[3]: https://github.com/mozilla/active-data-recipes
-[4]: https://github.com/mozilla/ActiveData
+[1]: https://github.com/mozilla/ActiveData
+[2]: https://github.com/mozilla/active-data-recipes
+[3]: https://poetry.eustace.io/docs/#installation
