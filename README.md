@@ -2,43 +2,56 @@
 [![PyPI version](https://badge.fury.io/py/adr.svg)](https://badge.fury.io/py/adr)
 [![PyPI version](https://readthedocs.org/projects/active-data-recipes/badge/?version=latest)](https://active-data-recipes.readthedocs.io)
 
-# active-data-recipes
+# adr
 
-A repository of various ActiveData recipes. A recipe is a small snippet that runs one or more active
-data queries and returns the output. Queries can sometimes be modified by command line arguments and
-output can sometimes be post-processed.
+This is the runner for [ActiveData recipes][0], it provides a command line interface and flask web
+app. [ActiveData][4] is a large data warehouse containing billions of records related to Mozilla's
+CI, version control, bug tracking and much more. An ActiveData "recipe" is a Python snippet that
+runs one or more queries against ActiveData, then performs some post-processing before returning the
+results.
 
-Each recipe should try to answer a single question.
+Other than a handful of built-in recipes, this repo doesn't contain any actual recipes itself. Those
+live in project specific repositories that will typically depend on some version of this library.
+The recommended way to run a recipe is to follow the README of the desired recipe project rather
+than starting here.
 
-# Software requirements
 
-- You will need Python 3.6 or higher to run the program.
+# Known Recipe Projects
+
+Here are some of the known repositories containing ActiveData recipes:
+
+* [active-data-recipes][3] - Misc recipes that are mostly untriaged. Good for finding examples to
+  copy from.
 
 
 # Installation
 
+Although installing `adr` directly is not recommended, it is still supported:
+
     $ pip install adr
+
+You will need Python 3.6 or higher.
+
 
 # Usage
 
-Run:
+The `adr` binary will search for recipes that live under $CWD, so usually just changing directories
+to the repository containing recipes is the best way to ensure `adr` can discover them.
 
-    $ adr <recipe> <options>
-
-For a list of recipes:
+For a list of available recipes:
 
     $ adr --list
+
+To run a given recipe:
+
+    $ adr <recipe> <options>
 
 For recipe specific options see:
 
     $ adr <recipe> -- --help
 
-# Recipes
 
-See the [recipe documentation][1] for more information on which recipes are available and how to run
-them.
-
-# Development
+# Contributing
 
 To contribute to `active-data-recipes` first [install poetry][2], then run:
 
@@ -70,6 +83,8 @@ Alternatively activate the `poetry` shell ahead of time:
     # run tests
     $ tox
 
-[0]: https://github.com/klahnakoski/ActiveData/blob/dev/docs/jx_time.md
+[0]: https://active-data-recipes.readthedocs.io
 [1]: https://active-data-recipes.readthedocs.io/en/latest/recipes.html
 [2]: https://poetry.eustace.io/docs/#installation
+[3]: https://github.com/mozilla/active-data-recipes
+[4]: https://github.com/mozilla/ActiveData
