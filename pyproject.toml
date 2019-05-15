@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "adr"
-version = "0.14.0"
+version = "0.15.0"
 description = "Utility for running ActiveData recipes"
 
 packages = [
@@ -22,8 +22,8 @@ authors = [
 ]
 
 readme = "README.md"
-repository = "https://github.com/mozilla/active-data-recipes"
-homepage = "https://github.com/mozilla/active-data-recipes"
+repository = "https://github.com/mozilla/adr"
+homepage = "https://github.com/mozilla/adr"
 
 [tool.poetry.scripts]
 adr = "adr.cli:main"
