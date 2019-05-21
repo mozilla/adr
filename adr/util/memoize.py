@@ -29,3 +29,17 @@ class memoize(dict):
     def __get__(self, instance, cls):
         return functools.update_wrapper(
             functools.partial(self.method_call, instance), self.func)
+
+
+class memoized_property(object):
+    '''A specialized version of the memoize decorator that works for
+    class instance properties.
+    '''
+    def __init__(self, func):
+        self.func = func
+
+    def __get__(self, instance, cls):
+        name = '_%s' % self.func.__name__
+        if not hasattr(instance, name):
+            setattr(instance, name, self.func(instance))
+        return getattr(instance, name)
