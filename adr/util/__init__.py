@@ -1,1 +1,1 @@
-from .memoize import memoize  # noqa
+from .memoize import memoize, memoized_property  # noqa
