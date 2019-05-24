@@ -72,6 +72,7 @@ class Configuration(Mapping):
         "url": "https://activedata.allizom.org/query",
         "verbose": False,
     }
+    locked = False
 
     def __init__(self, path=None):
         self.path = Path(path or os.environ.get('ADR_CONFIG_PATH') or self.DEFAULT_CONFIG_PATH)
@@ -89,6 +90,7 @@ class Configuration(Mapping):
         cache = self._config['cache'] or {'stores': {'null': {'driver': 'null'}}}
         self.cache = CacheManager(cache)
         self.cache.extend('null', lambda driver: NullStore())
+        self.locked = True
 
     def __len__(self):
         return len(self._config)
@@ -103,6 +105,16 @@ class Configuration(Mapping):
         if key in vars(self):
             return vars(self)[key]
         return self.__getitem__(key)
+
+    def __setattr__(self, key, value):
+        if self.locked:
+            raise AttributeError(
+                "Don't set attributes directly, use `config.set(key=value)` instead.")
+        super(Configuration, self).__setattr__(key, value)
+
+    def set(self, **kwargs):
+        """Set data on the config object."""
+        self._config.update(kwargs)
 
     def merge(self, other):
         """Merge data into config (updates dicts and lists instead of

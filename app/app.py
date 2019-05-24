@@ -96,7 +96,7 @@ def recipe_handler(recipe_name):
     :param list recipe:the name of the selected recipe file
     :returns: template
     """
-    config.merge({'recipe': recipe_name})
+    config.set(recipe=recipe_name)
 
     if recipe_name not in sources.recipes:
         return render_template('home.html',
@@ -114,7 +114,7 @@ def recipe_handler(recipe_name):
 
 
 def run_recipe(recipe_name, request, fmt='json'):
-    config.merge({'recipe': recipe_name})
+    config.set(recipe=recipe_name)
     recipe_contexts = recipe.get_recipe_contexts(recipe_name)
     args = request.args.to_dict(flat=True)
 
@@ -127,7 +127,7 @@ def run_recipe(recipe_name, request, fmt='json'):
         if context.get('type') == 'number':
             args[key] = int(value)
 
-    config.fmt = fmt
+    config.set(fmt=fmt)
     return recipe.run_recipe(recipe_name, args, False)
 
 
@@ -136,7 +136,7 @@ API_BASE_PATH = "/api/v1/"
 
 @app.route(API_BASE_PATH + "<recipe_name>")
 def run_recipe_api(recipe_name):
-    config.merge({'recipe': recipe_name})
+    config.set(recipe=recipe_name)
     try:
         data = run_recipe(recipe_name, request)
         result = make_response(data)

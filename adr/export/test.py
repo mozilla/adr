@@ -37,7 +37,8 @@ def cli(args=sys.argv[1:]):
         return result
 
     query.run_query = new_run_query
-    config.fmt = 'json'
+    config.set(fmt='json')
+    config.set(recipe=args.recipe)
 
     result = run_recipe(args.recipe, remainder)
     test = OrderedDict()
