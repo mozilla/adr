@@ -7,14 +7,12 @@ import sys
 from argparse import ArgumentParser
 from collections import OrderedDict
 from copy import deepcopy
+from pathlib import Path
 
 import yaml
 
-from adr import config, query
+from adr import config, sources, query
 from adr.recipe import run_recipe
-
-here = os.path.abspath(os.path.dirname(__file__))
-test_dir = os.path.join(here, os.pardir, os.pardir, 'test', 'recipe_tests')
 
 log = logging.getLogger('adr')
 
@@ -57,6 +55,10 @@ def cli(args=sys.argv[1:]):
             value.append((node_key, node_value))
         return yaml.nodes.MappingNode(u'tag:yaml.org,2002:map', value)
     yaml.add_representer(OrderedDict, represent_ordereddict)
+
+    test_dir = sources.active_source.recipe_dir.parent / 'test' / 'recipe_tests'
+    if not test_dir.is_dir():
+        os.makedirs(test_dir)
 
     path = os.path.join(test_dir, '{}.test'.format(args.recipe))
     with open(path, 'a') as fh:
