@@ -7,11 +7,10 @@ import sys
 from argparse import ArgumentParser
 from collections import OrderedDict
 from copy import deepcopy
-from pathlib import Path
 
 import yaml
 
-from adr import config, sources, query
+from adr import config, query, sources
 from adr.recipe import run_recipe
 
 log = logging.getLogger('adr')
