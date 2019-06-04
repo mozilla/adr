@@ -135,7 +135,7 @@ def run_query(name, args):
     logger.debug(f"Running query {name}:\n{query_str}")
     result = query_activedata(query_str, config.url)
 
-    config.cache.put(key, result, 60)
+    config.cache.put(key, result, config['cache']['retention'])
     return result
 
 

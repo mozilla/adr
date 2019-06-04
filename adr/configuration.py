@@ -61,7 +61,9 @@ def flatten(d, prefix=''):
 class Configuration(Mapping):
     DEFAULT_CONFIG_PATH = Path(user_config_dir('adr')) / 'config.toml'
     DEFAULTS = {
-        "cache": None,
+        "cache": {
+            "retention": 1440,  # minutes
+        },
         "debug": False,
         "debug_url": "https://activedata.allizom.org/tools/query.html#query_id={}",
         "fmt": "table",
@@ -87,8 +89,8 @@ class Configuration(Mapping):
 
         # Use the NullStore by default. This allows us to control whether
         # caching is enabled or not at runtime.
-        cache = self._config['cache'] or {'stores': {'null': {'driver': 'null'}}}
-        self.cache = CacheManager(cache)
+        self._config['cache'].setdefault('stores', {'null': {'driver': 'null'}})
+        self.cache = CacheManager(self._config['cache'])
         self.cache.extend('null', lambda driver: NullStore())
         self.locked = True
 
