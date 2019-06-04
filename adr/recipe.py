@@ -2,11 +2,11 @@ from __future__ import absolute_import, print_function
 
 import collections
 import imp
-import logging
 from argparse import Namespace
 from pathlib import Path
 
 from docutils.core import publish_parts
+from loguru import logger
 
 from adr import config, context, sources
 from adr.context import RequestParser
@@ -14,7 +14,6 @@ from adr.errors import MissingDataError
 from adr.formatter import all_formatters
 from adr.query import load_query_context
 
-log = logging.getLogger('adr')
 here = Path(__file__).parent.resolve()
 
 
@@ -73,6 +72,7 @@ def run_recipe(recipe, args, from_cli=True):
         output (str): output after formatted.
 
     """
+    logger.debug(f"Running recipe {recipe}")
     recipe_context_def = get_recipe_contexts(recipe)
 
     if from_cli:
@@ -89,7 +89,6 @@ def run_recipe(recipe, args, from_cli=True):
     if isinstance(config.fmt, str):
         fmt = all_formatters[config.fmt]
 
-    log.debug("Result:")
     return fmt(output)
 
 

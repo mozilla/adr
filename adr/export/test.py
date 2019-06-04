@@ -1,7 +1,6 @@
 from __future__ import absolute_import, print_function
 
 import json
-import logging
 import os
 import sys
 from argparse import ArgumentParser
@@ -12,8 +11,6 @@ import yaml
 
 from adr import config, query, sources
 from adr.recipe import run_recipe
-
-log = logging.getLogger('adr')
 
 
 def cli(args=sys.argv[1:]):

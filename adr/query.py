@@ -2,7 +2,6 @@ from __future__ import absolute_import, print_function
 
 import datetime
 import json
-import logging
 import os
 import time
 from argparse import Namespace
@@ -10,13 +9,13 @@ from argparse import Namespace
 import jsone
 import requests
 import yaml
+from loguru import logger
 
 from adr import config, context, sources
 from adr.context import RequestParser
 from adr.errors import MissingDataError
 from adr.formatter import all_formatters
 
-log = logging.getLogger('adr')
 here = os.path.abspath(os.path.dirname(__file__))
 
 
@@ -35,8 +34,8 @@ def query_activedata(query, url):
     response = requests.post(url,
                              data=query,
                              stream=True)
-    log.debug("Query execution time: "
-              + "{:.3f} ms".format((time.time() - start_time) * 1000.0))
+    logger.debug("Query execution time: "
+                 + "{:.3f} ms".format((time.time() - start_time) * 1000.0))
 
     if response.status_code != 200:
         try:
@@ -47,8 +46,7 @@ def query_activedata(query, url):
 
     json_response = response.json()
     if not json_response.get('data'):
-        log.debug("JSON Response:")
-        log.debug(json.dumps(json_response, indent=2))
+        logger.debug("JSON Response:\n{response}", response=json.dumps(json_response, indent=2))
         raise MissingDataError("ActiveData didn't return any data.")
     return json_response
 
@@ -131,10 +129,10 @@ def run_query(name, args):
 
     key = f"run_query.{name}.{query_hash}"
     if config.cache.has(key):
-        log.debug(f"Loading query {name} from cache")
+        logger.debug(f"Loading query {name} from cache")
         return config.cache.get(key)
 
-    log.debug(f"Running query {name}:\n{query_str}")
+    logger.debug(f"Running query {name}:\n{query_str}")
     result = query_activedata(query_str, config.url)
 
     config.cache.put(key, result, 60)

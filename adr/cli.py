@@ -1,7 +1,6 @@
 from __future__ import absolute_import, print_function
 
 import argparse
-import logging
 import os
 import subprocess
 import sys
@@ -9,16 +8,14 @@ import time
 import webbrowser
 from pathlib import Path
 
+from loguru import logger
+
 from adr import config, sources
 from adr.formatter import all_formatters
 from adr.query import format_query
 from adr.recipe import run_recipe
 
 here = Path(__file__).parent.resolve()
-
-log = logging.getLogger('adr')
-log.setLevel(logging.DEBUG)
-log.addHandler(logging.StreamHandler())
 
 
 class DefaultSubParser(argparse.ArgumentParser):
@@ -126,12 +123,12 @@ def handle_list(remainder):
             items = ['  ' + i for i in items]
         lines.extend(items)
 
-    log.info('\n'.join(lines).strip())
+    print(('\n'.join(lines).strip()))
 
 
 def handle_recipe(remainder):
     if config.recipe not in sources.recipes:
-        log.error("recipe '{}' not found!".format(config.recipe))
+        logger.error(f"recipe '{config.recipe}' not found!")
         return
 
     data = run_recipe(config.recipe, remainder)
@@ -143,7 +140,7 @@ def handle_recipe(remainder):
 
 def handle_query(remainder):
     if config.query not in sources.queries:
-        log.error("query '{}' not found!".format(config.query))
+        logger.error(f"query '{config.query}' not found!")
         return
 
     data, url = format_query(config.query, remainder)
@@ -174,7 +171,9 @@ def main(args=sys.argv[1:]):
     delattr(args, 'func')
 
     config.merge(vars(args))
-    log.setLevel(logging.DEBUG) if config.verbose else log.setLevel(logging.INFO)
+    if not config.verbose:
+        logger.remove()
+        logger.add(sys.stderr, level="INFO")
 
     result = handler(remainder)
     if result is not None:
