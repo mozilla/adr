@@ -72,7 +72,11 @@ def run_recipe(recipe, args, from_cli=True):
         output (str): output after formatted.
 
     """
-    logger.debug(f"Running recipe {recipe}")
+    formatted_args = ""
+    if args:
+        formatted_args += f" with args: {args}"
+    logger.debug(f"Running recipe {recipe}{formatted_args}")
+
     recipe_context_def = get_recipe_contexts(recipe)
 
     if from_cli:

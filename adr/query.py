@@ -111,6 +111,8 @@ def run_query(name, args):
     :return str: json-formatted string.
     """
     context = vars(args)
+    formatted_context = ", ".join([f"{k}={v}" for k, v in context.items()])
+    logger.debug(f"Running query {name} with context: {formatted_context}")
     query = load_query(name)
 
     if 'limit' not in query and 'limit' in context:
@@ -129,10 +131,10 @@ def run_query(name, args):
 
     key = f"run_query.{name}.{query_hash}"
     if config.cache.has(key):
-        logger.debug(f"Loading query {name} from cache")
+        logger.debug(f"Loading results from cache")
         return config.cache.get(key)
 
-    logger.debug(f"Running query {name}:\n{query_str}")
+    logger.debug(f"JSON representation of query:\n{query_str}")
     result = query_activedata(query_str, config.url)
 
     config.cache.put(key, result, config['cache']['retention'])
