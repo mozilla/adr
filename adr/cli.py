@@ -18,6 +18,25 @@ from adr.recipe import run_recipe
 here = Path(__file__).parent.resolve()
 
 
+class LogFormatter:
+    """Formatter to handle padding of variable length module names."""
+
+    def __init__(self):
+        self.padding = 0
+        self.fmt = (
+            "<green>{time:HH:mm:ss.SSS}</green> | "
+            "<level>{level: <8}</level> | "
+            "{extra[padding]}<cyan>{name}</cyan>:<cyan>{line: <3}</cyan> - "
+            "<level>{message}</level>\n"
+        )
+
+    def format(self, record):
+        length = len("{name}".format(**record))
+        self.padding = max(self.padding, length)
+        record["extra"]["padding"] = " " * (self.padding - length)
+        return self.fmt
+
+
 class DefaultSubParser(argparse.ArgumentParser):
     __default_subparser = None
 
@@ -165,16 +184,19 @@ def main(args=sys.argv[1:]):
     # Load config from file and override with command line.
     parser = get_parser()
 
-    # Parse all arguments, then pass to appropriate handler.
+    # Parse all arguments and merge with configuration.
     args, remainder = parser.parse_known_args()
     handler = args.func
     delattr(args, 'func')
-
     config.merge(vars(args))
-    if not config.verbose:
-        logger.remove()
-        logger.add(sys.stderr, level="INFO")
 
+    # Configure logging.
+    logger.remove()
+    level = "DEBUG" if config.verbose else "INFO"
+    fmt = os.environ.get("LOGURU_FORMAT", LogFormatter().format)
+    logger.add(sys.stderr, level=level, format=fmt)
+
+    # Pass remaining args to the appropriate handler.
     result = handler(remainder)
     if result is not None:
         print(result)
