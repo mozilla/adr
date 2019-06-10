@@ -1,11 +1,15 @@
 """
-Get information on the ActiveData schema. The above command returns the
-available tables. To see the columns in a table, run:
+Inspect the ActiveData schema. For example, to see all available tables in ActiveData, run:
 
 .. code-block:: bash
 
     adr inspect
-    adr inspect --table task
+
+To see the attributes in a given table run:
+
+.. code-block:: bash
+
+    adr inspect --table <name>
 """
 from __future__ import absolute_import, print_function
 
