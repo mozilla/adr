@@ -47,7 +47,7 @@ class DefaultSubParser(argparse.ArgumentParser):
     def _parse_known_args(self, arg_strings, *args, **kwargs):
         in_args = set(arg_strings)
         d_sp = self.__default_subparser
-        if d_sp is not None and not {'-h', '--help'}.intersection(in_args):
+        if d_sp is not None and arg_strings[0] not in ('-h', '--help'):
             for x in self._subparsers._actions:
                 subparser_found = (
                     isinstance(x, argparse._SubParsersAction) and
@@ -67,7 +67,7 @@ class DefaultSubParser(argparse.ArgumentParser):
 
 def get_parser():
     parser = DefaultSubParser()
-    subparsers = parser.add_subparsers()
+    subparsers = parser.add_subparsers(title="subcommands")
 
     def add_common_args(parser):
         parser.add_argument('-f', '--format', dest='fmt', choices=all_formatters.keys(),
@@ -80,14 +80,14 @@ def get_parser():
         parser.set_defaults(**config.DEFAULTS)
 
     # recipe subcommand
-    recipe = subparsers.add_parser('recipe')
+    recipe = subparsers.add_parser('recipe', help="Run a recipe (default).")
     recipe.add_argument('recipe', help="Name of the recipe to run (or 'list' to "
                                        "view all available recipes).")
     add_common_args(recipe)
     recipe.set_defaults(func=handle_recipe)
 
     # query subcommand
-    query = subparsers.add_parser('query')
+    query = subparsers.add_parser('query', help="Run a query.")
     query.add_argument('query', help="Name of the query to run (or 'list' to "
                                      "view all available queries).")
     query.add_argument('-d', '--debug', action='store_true',
