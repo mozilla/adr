@@ -45,9 +45,10 @@ class DefaultSubParser(argparse.ArgumentParser):
         self.__default_subparser = name
 
     def _parse_known_args(self, arg_strings, *args, **kwargs):
+        help_strings = ('-h', '--help')
         in_args = set(arg_strings)
         d_sp = self.__default_subparser
-        if d_sp is not None and arg_strings[0] not in ('-h', '--help'):
+        if d_sp is not None and arg_strings[0] not in help_strings:
             for x in self._subparsers._actions:
                 subparser_found = (
                     isinstance(x, argparse._SubParsersAction) and
@@ -59,6 +60,13 @@ class DefaultSubParser(argparse.ArgumentParser):
                 # insert default in first position, this implies no
                 # global options without a sub_parsers specified
                 arg_strings = [d_sp] + arg_strings
+
+        # minor hack to make `adr <recipe> --help` redirect to recipe's help
+        if arg_strings[0] in ('recipe', 'query') and arg_strings[1] not in help_strings:
+            for h in help_strings:
+                if h in arg_strings:
+                    arg_strings.insert(arg_strings.index(h), '--')
+                    break
 
         return super(DefaultSubParser, self)._parse_known_args(
             arg_strings, *args, **kwargs
