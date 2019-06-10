@@ -1,7 +1,7 @@
 import ast
 import collections
 import inspect
-from argparse import ArgumentParser, SUPPRESS
+from argparse import ArgumentParser, RawDescriptionHelpFormatter, SUPPRESS
 from copy import deepcopy
 
 import yaml
@@ -41,8 +41,8 @@ def load_shared_context():
 
 class RequestParser(ArgumentParser):
 
-    def __init__(self, definitions):
-        ArgumentParser.__init__(self)
+    def __init__(self, definitions, **kwargs):
+        ArgumentParser.__init__(self, formatter_class=RawDescriptionHelpFormatter, **kwargs)
 
         for name, definition in definitions.items():
             definition.setdefault('dest', name)

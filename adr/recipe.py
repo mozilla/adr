@@ -80,7 +80,9 @@ def run_recipe(recipe, args, from_cli=True):
     recipe_context_def = get_recipe_contexts(recipe)
 
     if from_cli:
-        parsed_args = vars(RequestParser(recipe_context_def).parse_args(args))
+        doc = get_docstring(recipe, fmt='text')
+        parser = RequestParser(recipe_context_def, prog="adr {}".format(recipe), description=doc)
+        parsed_args = vars(parser.parse_args(args))
     else:
         parsed_args = args
 
@@ -96,16 +98,36 @@ def run_recipe(recipe, args, from_cli=True):
     return fmt(output)
 
 
-def get_docstring(recipe):
+def get_docstring(recipe, fmt='html'):
     """
     Get docstring of a recipe
     Args:
-        recipe(str): name of recipe
+        recipe (str): name of recipe
+        fmt (str): Format to return docstring (default: 'html')
     Result:
-        html (transformed from rst)
+        html or text (transformed from rst)
     """
-    mod = get_module(recipe)
-    return publish_parts(mod.__doc__, writer_name='html')['html_body']
+    assert fmt in ('html', 'text')
+    doc = get_module(recipe).__doc__
+
+    if fmt == 'html':
+        return publish_parts(doc, writer_name='html')['html_body']
+
+    # TODO Figure out how to use Sphinx's TextWriter with publish_parts.
+    lines = doc.splitlines()
+    delete = []
+    for i, line in enumerate(lines[:]):
+        if not line.startswith('.. '):
+            continue
+
+        delete.append(i)
+        if not lines[i-1]:
+            delete.append(i-1)
+
+    for d in sorted(delete, reverse=True):
+        del lines[d]
+
+    return '\n'.join(lines)
 
 
 def is_fail(recipe):
