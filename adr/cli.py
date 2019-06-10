@@ -27,13 +27,14 @@ class LogFormatter:
             "<green>{time:HH:mm:ss.SSS}</green> | "
             "<level>{level: <8}</level> | "
             "{extra[padding]}<cyan>{name}</cyan>:<cyan>{line: <3}</cyan> - "
-            "<level>{message}</level>\n"
+            "<level>{extra[prefix]}{message}</level>\n"
         )
 
     def format(self, record):
         length = len("{name}".format(**record))
         self.padding = max(self.padding, length)
         record["extra"]["padding"] = " " * (self.padding - length)
+        record["extra"].setdefault("prefix", "")
         return self.fmt
 
 
