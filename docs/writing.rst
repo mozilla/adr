@@ -42,6 +42,41 @@ format. For example:
 The above recipe runs the ``task_durations`` query, does a bit of post-processing (e.g sanitizing
 data and calculating the total hours), then inserts a header and returns the sorted results.
 
+Logging
+~~~~~~~
+
+The ``adr`` runner comes with a logger setup to log to stderr. You can access it like this:
+
+.. code-block:: python
+
+    from adr import logger
+
+    def run(args):
+        logger.info("Starting recipe")
+
+Logging is handled by the `loguru`_ module. See that project's documentation for more details. The
+default log level is ``INFO`` and passing in the global ``--verbose`` flag changes the level to
+``DEBUG``.
+
+Using Configuration
+~~~~~~~~~~~~~~~~~~~
+
+You can access ``adr``'s :class:`configuration <adr.configuration.Configuration>` object like so:
+
+.. code-block:: python
+
+    from adr import config
+
+    def run(args):
+        key = str(args)
+        if config.cache.has(key):
+            value = config.cache.get(key)
+        else:
+            value = expensive_function(args)
+            config.cache.put(key, value)
+
+
+
 Queries
 -------
 
@@ -109,7 +144,7 @@ date range, a specific revision or a task label as an input. To support this, ``
 
 In the ``task_duration`` example above, the context is passed into the ``run`` method of the recipe.
 The value is an ``argparse.Namespace`` object and values can be accessed with dot notation (e.g
-``args.foo``). The context should also be passed into any calls to ``run_query``, you can modify it
+``args.foo``). The context should also be passed into any calls to :func:`~adr.query.run_query`, you can modify it
 beforehand if you wish.
 
 But where does this context come from? If you look at the ``task_durations`` query, you'll notice
@@ -235,6 +270,7 @@ See the `README`_ for more information, but the gist is you can run:
 This will guide you through a wizard to help set up your project.
 
 
+.. _loguru: https://github.com/Delgan/loguru
 .. _ActiveData query: https://github.com/mozilla/ActiveData/blob/dev/docs/jx.md
 .. _yaml tutorial: https://gettaurus.org/docs/YAMLTutorial/
 .. _query documentation: https://github.com/mozilla/ActiveData/blob/dev/docs/jx.md
