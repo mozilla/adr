@@ -7,10 +7,9 @@ from copy import deepcopy
 import yaml
 from jsone.interpreter import ExpressionEvaluator
 from jsone.prattparser import prefix
-from orderedset import OrderedSet
 
 from adr import sources
-from adr.util import memoize
+from adr.util import OrderedSet, memoize
 
 
 def validdatetime(string):
