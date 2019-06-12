@@ -62,7 +62,7 @@ class DefaultSubParser(argparse.ArgumentParser):
                 arg_strings = [d_sp] + arg_strings
 
         # minor hack to make `adr <recipe> --help` redirect to recipe's help
-        if arg_strings[0] in ('recipe', 'query') and arg_strings[1] not in help_strings:
+        if len(arg_strings) > 1 and arg_strings[0] in ('recipe', 'query') and arg_strings[1] not in help_strings:
             for h in help_strings:
                 if h in arg_strings:
                     arg_strings.insert(arg_strings.index(h), '--')
