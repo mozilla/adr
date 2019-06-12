@@ -32,8 +32,10 @@ documentation <usage>`.
    :caption: Contents:
 
    usage
+   webapp
    writing
    recipes
+   api/modules
 
 Indices and tables
 ==================

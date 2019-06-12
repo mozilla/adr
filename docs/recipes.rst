@@ -4,7 +4,7 @@ Available Recipes
 Built-in
 ++++++++
 
-The following recipes come bundled with the :doc:`adr` module. They are typically only used to help
+The following recipes come bundled with the :doc:`adr <index>` module. They are typically only used to help
 inspect ActiveData and create new recipes.
 
 inspect
