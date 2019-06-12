@@ -13,15 +13,18 @@ class Source:
 
     @property
     def query_dir(self):
-        return self.recipe_dir / 'queries'
+        return self.recipe_dir / "queries"
 
     @property
     def recipes(self):
         if self._recipes:
             return self._recipes
 
-        self._recipes = [item.stem for item in self.recipe_dir.iterdir()
-                         if item.is_file() and item.stem != '__init__' and item.suffix == '.py']
+        self._recipes = [
+            item.stem
+            for item in self.recipe_dir.iterdir()
+            if item.is_file() and item.stem != "__init__" and item.suffix == ".py"
+        ]
         return self._recipes
 
     @property
@@ -29,19 +32,22 @@ class Source:
         if self._queries:
             return self._queries
 
-        self._queries = [item.stem for item in self.query_dir.iterdir()
-                         if item.is_file() if item.suffix == '.query']
+        self._queries = [
+            item.stem
+            for item in self.query_dir.iterdir()
+            if item.is_file()
+            if item.suffix == ".query"
+        ]
         return self._queries
 
 
 class SourceHandler:
-
     def __init__(self, sources):
         self._sources = []
         for source in set(sources):
             source = Path(source).expanduser().resolve()
 
-            recipe_dirs = [p for p in source.glob('*recipes') if p.is_dir()]
+            recipe_dirs = [p for p in source.glob("*recipes") if p.is_dir()]
 
             if not recipe_dirs:
                 if source.as_posix() != os.getcwd():
@@ -70,10 +76,10 @@ class SourceHandler:
 
     def _find_source(self, name, query=False):
         sources = self._sources
-        if query and 'recipe' in config:
+        if query and "recipe" in config:
             sources = [s for s in sources if config.recipe in s.recipes]
 
-        attr = 'queries' if query else 'recipes'
+        attr = "queries" if query else "recipes"
 
         for s in sources:
             if name in getattr(s, attr):
@@ -81,11 +87,11 @@ class SourceHandler:
 
     @property
     def active_source(self):
-        recipe = config.get('recipe')
+        recipe = config.get("recipe")
         if recipe:
             return self._find_source(recipe)
 
-        query = config.get('query')
+        query = config.get("query")
         if query:
             return self._find_source(query, query=True)
 
@@ -93,8 +99,8 @@ class SourceHandler:
         source = self._find_source(name, query=query)
         if source:
             if query:
-                return source.query_dir / (name + '.query')
-            return source.recipe_dir / (name + '.py')
+                return source.query_dir / (name + ".query")
+            return source.recipe_dir / (name + ".py")
 
 
 sources = SourceHandler(config.sources)

@@ -22,34 +22,33 @@ def load_shared_context():
     if not sources.active_source:
         return {}
 
-    context_path = sources.active_source.recipe_dir / 'context.yml'
+    context_path = sources.active_source.recipe_dir / "context.yml"
     if not context_path.is_file():
         return {}
 
-    with open(context_path, 'r') as fh:
+    with open(context_path, "r") as fh:
         context = yaml.load(fh, Loader=yaml.SafeLoader)
 
     for key, value in context.items():
         # transform 'type' key
-        if 'type' in value:
-            if value['type'] in globals():
-                value['type'] = globals()[value['type']]
-            elif value['type'] in __builtins__:
-                value['type'] = __builtins__[value['type']]
+        if "type" in value:
+            if value["type"] in globals():
+                value["type"] = globals()[value["type"]]
+            elif value["type"] in __builtins__:
+                value["type"] = __builtins__[value["type"]]
     return context
 
 
 class RequestParser(ArgumentParser):
-
     def __init__(self, definitions, **kwargs):
         ArgumentParser.__init__(self, formatter_class=RawDescriptionHelpFormatter, **kwargs)
 
         for name, definition in definitions.items():
-            definition.setdefault('dest', name)
-            flags = definition.pop('flags', [])
+            definition.setdefault("dest", name)
+            flags = definition.pop("flags", [])
 
-            if definition.pop('hidden', None):
-                definition['help'] = SUPPRESS
+            if definition.pop("hidden", None):
+                definition["help"] = SUPPRESS
 
             self.add_argument(*flags, **definition)
 
@@ -217,7 +216,7 @@ def extract_arguments(func, call, members=None):
         # Check for Call and Attribute
         # Attribute first
         if isinstance(node, ast.Attribute):
-            if hasattr(node.value, 'id') and node.value.id == root_arg:
+            if hasattr(node.value, "id") and node.value.id == root_arg:
                 attrs.add(node.attr)
             continue
 

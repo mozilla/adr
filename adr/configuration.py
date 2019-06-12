@@ -41,16 +41,16 @@ def merge_to(source, dest):
     return dest
 
 
-def flatten(d, prefix=''):
+def flatten(d, prefix=""):
     if prefix:
-        prefix += '.'
+        prefix += "."
 
     result = []
     for key, value in d.items():
         if isinstance(value, dict):
             result.extend(flatten(value, prefix=f"{prefix}{key}"))
         elif isinstance(value, (set, list)):
-            vstr = '\n'.join([f"    {i}" for i in value])
+            vstr = "\n".join([f"    {i}" for i in value])
             result.append(f"{prefix}{key}=\n{vstr}")
         else:
             result.append(f"{prefix}{key}={value}")
@@ -59,39 +59,34 @@ def flatten(d, prefix=''):
 
 
 class Configuration(Mapping):
-    DEFAULT_CONFIG_PATH = Path(user_config_dir('adr')) / 'config.toml'
+    DEFAULT_CONFIG_PATH = Path(user_config_dir("adr")) / "config.toml"
     DEFAULTS = {
-        "cache": {
-            "retention": 1440,  # minutes
-        },
+        "cache": {"retention": 1440},  # minutes
         "debug": False,
         "debug_url": "https://activedata.allizom.org/tools/query.html#query_id={}",
         "fmt": "table",
-        "sources": [
-            os.getcwd(),
-            Path(adr.__file__).parent.parent.as_posix(),
-        ],
+        "sources": [os.getcwd(), Path(adr.__file__).parent.parent.as_posix()],
         "url": "https://activedata.allizom.org/query",
         "verbose": False,
     }
     locked = False
 
     def __init__(self, path=None):
-        self.path = Path(path or os.environ.get('ADR_CONFIG_PATH') or self.DEFAULT_CONFIG_PATH)
+        self.path = Path(path or os.environ.get("ADR_CONFIG_PATH") or self.DEFAULT_CONFIG_PATH)
 
         self._config = self.DEFAULTS.copy()
         if self.path.is_file():
-            with open(self.path, 'r') as fh:
+            with open(self.path, "r") as fh:
                 content = fh.read()
-                self.merge(parse(content)['adr'])
+                self.merge(parse(content)["adr"])
 
-        self._config['sources'] = sorted(map(os.path.expanduser, set(self._config['sources'])))
+        self._config["sources"] = sorted(map(os.path.expanduser, set(self._config["sources"])))
 
         # Use the NullStore by default. This allows us to control whether
         # caching is enabled or not at runtime.
-        self._config['cache'].setdefault('stores', {'null': {'driver': 'null'}})
-        self.cache = CacheManager(self._config['cache'])
-        self.cache.extend('null', lambda driver: NullStore())
+        self._config["cache"].setdefault("stores", {"null": {"driver": "null"}})
+        self.cache = CacheManager(self._config["cache"])
+        self.cache.extend("null", lambda driver: NullStore())
         self.locked = True
 
     def __len__(self):
@@ -111,7 +106,8 @@ class Configuration(Mapping):
     def __setattr__(self, key, value):
         if self.locked:
             raise AttributeError(
-                "Don't set attributes directly, use `config.set(key=value)` instead.")
+                "Don't set attributes directly, use `config.set(key=value)` instead."
+            )
         super(Configuration, self).__setattr__(key, value)
 
     def set(self, **kwargs):
@@ -128,7 +124,7 @@ class Configuration(Mapping):
         merge_to(other, self._config)
 
     def dump(self):
-        return '\n'.join(flatten(self._config))
+        return "\n".join(flatten(self._config))
 
 
 config = Configuration()

@@ -19,8 +19,8 @@ from adr.formatter import all_formatters
 here = os.path.abspath(os.path.dirname(__file__))
 
 
-def format_date(timestamp, interval='day'):
-    return datetime.datetime.fromtimestamp(timestamp).strftime('%Y-%m-%d')
+def format_date(timestamp, interval="day"):
+    return datetime.datetime.fromtimestamp(timestamp).strftime("%Y-%m-%d")
 
 
 def query_activedata(query, url):
@@ -31,11 +31,8 @@ def query_activedata(query, url):
     :returns str: json-formatted string.
     """
     start_time = time.time()
-    response = requests.post(url,
-                             data=query,
-                             stream=True)
-    logger.debug("Query execution time: "
-                 + "{:.3f} ms".format((time.time() - start_time) * 1000.0))
+    response = requests.post(url, data=query, stream=True)
+    logger.debug("Query execution time: " + "{:.3f} ms".format((time.time() - start_time) * 1000.0))
 
     if response.status_code != 200:
         try:
@@ -45,7 +42,7 @@ def query_activedata(query, url):
         response.raise_for_status()
 
     json_response = response.json()
-    if not json_response.get('data'):
+    if not json_response.get("data"):
         logger.debug("JSON Response:\n{response}", response=json.dumps(json_response, indent=2))
         raise MissingDataError("ActiveData didn't return any data.")
     return json_response
@@ -115,18 +112,18 @@ def run_query(name, args):
     logger.debug(f"Running query {name} with context: {formatted_context}")
     query = load_query(name)
 
-    if 'limit' not in query and 'limit' in context:
-        query['limit'] = context['limit']
-    if 'format' not in query and 'format' in context:
-        query['format'] = context['format']
+    if "limit" not in query and "limit" in context:
+        query["limit"] = context["limit"]
+    if "format" not in query and "format" in context:
+        query["format"] = context["format"]
     if config.debug:
-        query['meta'] = {"save": True}
+        query["meta"] = {"save": True}
 
     query = jsone.render(query, context)
-    query_str = json.dumps(query, indent=2, separators=(',', ':'))
+    query_str = json.dumps(query, indent=2, separators=(",", ":"))
 
     # translate "all" to a null value (which ActiveData will treat as all)
-    query_str = query_str.replace('"all"', 'null')
+    query_str = query_str.replace('"all"', "null")
     query_hash = config.cache._hash(query_str)
 
     key = f"run_query.{name}.{query_hash}"
@@ -137,7 +134,7 @@ def run_query(name, args):
     logger.debug(f"JSON representation of query:\n{query_str}")
     result = query_activedata(query_str, config.url)
 
-    config.cache.put(key, result, config['cache']['retention'])
+    config.cache.put(key, result, config["cache"]["retention"])
     return result
 
 
@@ -157,25 +154,25 @@ def format_query(query, remainder=[]):
     args = vars(RequestParser(query_context).parse_args(remainder))
 
     for key, value in query_context.items():
-        if 'default' in value:
-            args.setdefault(key, value['default'])
+        if "default" in value:
+            args.setdefault(key, value["default"])
 
     result = run_query(query, Namespace(**args))
-    data = result['data']
+    data = result["data"]
     debug_url = None
-    if 'saved_as' in result['meta']:
-        query_id = result['meta']['saved_as']
+    if "saved_as" in result["meta"]:
+        query_id = result["meta"]["saved_as"]
         debug_url = config.debug_url.format(query_id)
 
-    if config.fmt == 'json':
+    if config.fmt == "json":
         return fmt(result), debug_url
 
-    if 'edges' in result:
-        for edge in result['edges']:
-            if 'partitions' in edge['domain']:
-                data[edge['name']] = [p['name'] for p in edge['domain']['partitions']]
+    if "edges" in result:
+        for edge in result["edges"]:
+            if "partitions" in edge["domain"]:
+                data[edge["name"]] = [p["name"] for p in edge["domain"]["partitions"]]
 
-    if 'header' in result:
-        data.insert(0, result['header'])
+    if "header" in result:
+        data.insert(0, result["header"])
 
     return fmt(data), debug_url

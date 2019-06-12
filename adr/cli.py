@@ -45,15 +45,14 @@ class DefaultSubParser(argparse.ArgumentParser):
         self.__default_subparser = name
 
     def _parse_known_args(self, arg_strings, *args, **kwargs):
-        help_strings = ('-h', '--help')
+        help_strings = ("-h", "--help")
         in_args = set(arg_strings)
         d_sp = self.__default_subparser
         if d_sp is not None and arg_strings[0] not in help_strings:
             for x in self._subparsers._actions:
-                subparser_found = (
-                    isinstance(x, argparse._SubParsersAction) and
-                    in_args.intersection(x._name_parser_map.keys())
-                )
+                subparser_found = isinstance(
+                    x, argparse._SubParsersAction
+                ) and in_args.intersection(x._name_parser_map.keys())
                 if subparser_found:
                     break
             else:
@@ -62,15 +61,17 @@ class DefaultSubParser(argparse.ArgumentParser):
                 arg_strings = [d_sp] + arg_strings
 
         # minor hack to make `adr <recipe> --help` redirect to recipe's help
-        if len(arg_strings) > 1 and arg_strings[0] in ('recipe', 'query') and arg_strings[1] not in help_strings:
+        if (
+            len(arg_strings) > 1
+            and arg_strings[0] in ("recipe", "query")
+            and arg_strings[1] not in help_strings
+        ):
             for h in help_strings:
                 if h in arg_strings:
-                    arg_strings.insert(arg_strings.index(h), '--')
+                    arg_strings.insert(arg_strings.index(h), "--")
                     break
 
-        return super(DefaultSubParser, self)._parse_known_args(
-            arg_strings, *args, **kwargs
-        )
+        return super(DefaultSubParser, self)._parse_known_args(arg_strings, *args, **kwargs)
 
 
 def get_parser():
@@ -78,44 +79,61 @@ def get_parser():
     subparsers = parser.add_subparsers(title="subcommands")
 
     def add_common_args(parser):
-        parser.add_argument('-f', '--format', dest='fmt', choices=all_formatters.keys(),
-                            help="Format to print data in, defaults to 'table'.")
-        parser.add_argument('-v', '--verbose', action='store_true',
-                            help="Print the query and other debugging information.")
-        parser.add_argument('-u', '--url',  help="ActiveData endpoint URL.")
-        parser.add_argument('-o', '--output-file', type=str,
-                            help="Full path of the output file")
+        parser.add_argument(
+            "-f",
+            "--format",
+            dest="fmt",
+            choices=all_formatters.keys(),
+            help="Format to print data in, defaults to 'table'.",
+        )
+        parser.add_argument(
+            "-v",
+            "--verbose",
+            action="store_true",
+            help="Print the query and other debugging information.",
+        )
+        parser.add_argument("-u", "--url", help="ActiveData endpoint URL.")
+        parser.add_argument("-o", "--output-file", type=str, help="Full path of the output file")
         parser.set_defaults(**config.DEFAULTS)
 
     # recipe subcommand
-    recipe = subparsers.add_parser('recipe', help="Run a recipe (default).")
-    recipe.add_argument('recipe', help="Name of the recipe to run (or 'list' to "
-                                       "view all available recipes).")
+    recipe = subparsers.add_parser("recipe", help="Run a recipe (default).")
+    recipe.add_argument(
+        "recipe", help="Name of the recipe to run (or 'list' to " "view all available recipes)."
+    )
     add_common_args(recipe)
     recipe.set_defaults(func=handle_recipe)
 
     # query subcommand
-    query = subparsers.add_parser('query', help="Run a query.")
-    query.add_argument('query', help="Name of the query to run (or 'list' to "
-                                     "view all available queries).")
-    query.add_argument('-d', '--debug', action='store_true',
-                       help="Open a query in ActiveData query tool.")
+    query = subparsers.add_parser("query", help="Run a query.")
+    query.add_argument(
+        "query", help="Name of the query to run (or 'list' to " "view all available queries)."
+    )
+    query.add_argument(
+        "-d", "--debug", action="store_true", help="Open a query in ActiveData query tool."
+    )
     add_common_args(query)
     query.set_defaults(func=handle_query)
 
     # list subcommand
-    listcmd = subparsers.add_parser('list', help="List the available recipes (or queries).")
-    listcmd.add_argument('subcommand', nargs='?', choices=['recipe', 'query'], default='recipe')
+    listcmd = subparsers.add_parser("list", help="List the available recipes (or queries).")
+    listcmd.add_argument("subcommand", nargs="?", choices=["recipe", "query"], default="recipe")
     add_common_args(listcmd)
     listcmd.set_defaults(func=handle_list)
 
     # config subcommand
-    configcmd = subparsers.add_parser('config', help="Print active configuration.")
-    configcmd.add_argument("-e", "--edit", action="store", nargs="?",
-                           default=False, help="Open the config file in an editor.")
+    configcmd = subparsers.add_parser("config", help="Print active configuration.")
+    configcmd.add_argument(
+        "-e",
+        "--edit",
+        action="store",
+        nargs="?",
+        default=False,
+        help="Open the config file in an editor.",
+    )
     configcmd.set_defaults(func=handle_config)
 
-    parser.set_default_subparser('recipe')
+    parser.set_default_subparser("recipe")
     return parser
 
 
@@ -132,14 +150,14 @@ def handle_config(remainder):
     elif "EDITOR" in os.environ:
         editor = os.environ["EDITOR"]
     else:
-        print('Unable to determine editor; please specify a binary')
+        print("Unable to determine editor; please specify a binary")
 
     if editor:
         subprocess.Popen([editor, config.path]).wait()
 
 
 def handle_list(remainder):
-    key = 'queries' if config.subcommand == 'query' else 'recipes'
+    key = "queries" if config.subcommand == "query" else "recipes"
     lines = []
     for source in sources:
         if config.verbose:
@@ -148,10 +166,10 @@ def handle_list(remainder):
 
         items = sorted(getattr(source, key))
         if config.verbose:
-            items = ['  ' + i for i in items]
+            items = ["  " + i for i in items]
         lines.extend(items)
 
-    print(('\n'.join(lines).strip()))
+    print(("\n".join(lines).strip()))
 
 
 def handle_recipe(remainder):
@@ -162,7 +180,7 @@ def handle_recipe(remainder):
     data = run_recipe(config.recipe, remainder)
 
     if config.output_file:
-        print(data, file=open(config.output_file, 'w'))
+        print(data, file=open(config.output_file, "w"))
     return data
 
 
@@ -173,7 +191,7 @@ def handle_query(remainder):
 
     data, url = format_query(config.query, remainder)
     if config.output_file:
-        print(data, file=open(config.output_file, 'w'))
+        print(data, file=open(config.output_file, "w"))
 
     if url:
         time.sleep(2)
@@ -196,7 +214,7 @@ def main(args=sys.argv[1:]):
     # Parse all arguments and merge with configuration.
     args, remainder = parser.parse_known_args()
     handler = args.func
-    delattr(args, 'func')
+    delattr(args, "func")
     config.merge(vars(args))
 
     # Configure logging.
@@ -211,5 +229,5 @@ def main(args=sys.argv[1:]):
         print(result)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     sys.exit(main())

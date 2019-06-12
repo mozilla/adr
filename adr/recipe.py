@@ -25,7 +25,7 @@ def get_module(recipe):
     :return: module
     """
     path = sources.get(recipe)
-    return imp.load_module(f'recipes.{path.stem}', *imp.find_module(recipe, [path.parent]))
+    return imp.load_module(f"recipes.{path.stem}", *imp.find_module(recipe, [path.parent]))
 
 
 def get_recipe_contexts(recipe):
@@ -42,7 +42,7 @@ def get_recipe_contexts(recipe):
     queries, run_contexts = context.extract_arguments(mod.run, "run_query")
 
     specific_contexts = collections.OrderedDict()
-    if hasattr(mod, 'RUN_CONTEXTS'):
+    if hasattr(mod, "RUN_CONTEXTS"):
         context_info = mod.RUN_CONTEXTS
         for item in context_info:
             specific_contexts.update(item)
@@ -80,7 +80,7 @@ def run_recipe(recipe, args, from_cli=True):
     recipe_context_def = get_recipe_contexts(recipe)
 
     if from_cli:
-        doc = get_docstring(recipe, fmt='text')
+        doc = get_docstring(recipe, fmt="text")
         parser = RequestParser(recipe_context_def, prog="adr {}".format(recipe), description=doc)
         parsed_args = vars(parser.parse_args(args))
     else:
@@ -90,7 +90,7 @@ def run_recipe(recipe, args, from_cli=True):
         mod = get_module(recipe)
         output = mod.run(Namespace(**parsed_args))
     except MissingDataError:
-        return "ActiveData didn\'t return any data."
+        return "ActiveData didn't return any data."
 
     if isinstance(config.fmt, str):
         fmt = all_formatters[config.fmt]
@@ -98,7 +98,7 @@ def run_recipe(recipe, args, from_cli=True):
     return fmt(output)
 
 
-def get_docstring(recipe, fmt='html'):
+def get_docstring(recipe, fmt="html"):
     """
     Get docstring of a recipe
     Args:
@@ -107,27 +107,27 @@ def get_docstring(recipe, fmt='html'):
     Result:
         html or text (transformed from rst)
     """
-    assert fmt in ('html', 'text')
+    assert fmt in ("html", "text")
     doc = get_module(recipe).__doc__
 
-    if fmt == 'html':
-        return publish_parts(doc, writer_name='html')['html_body']
+    if fmt == "html":
+        return publish_parts(doc, writer_name="html")["html_body"]
 
     # TODO Figure out how to use Sphinx's TextWriter with publish_parts.
     lines = doc.splitlines()
     delete = []
     for i, line in enumerate(lines[:]):
-        if not line.startswith('.. '):
+        if not line.startswith(".. "):
             continue
 
         delete.append(i)
-        if not lines[i-1]:
-            delete.append(i-1)
+        if not lines[i - 1]:
+            delete.append(i - 1)
 
     for d in sorted(delete, reverse=True):
         del lines[d]
 
-    return '\n'.join(lines)
+    return "\n".join(lines)
 
 
 def is_fail(recipe):

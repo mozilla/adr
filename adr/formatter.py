@@ -25,15 +25,15 @@ class TableFormatter(object):
             data = json.loads(data)
 
         if isinstance(data, dict):
-            if 'names' in data.keys():
-                header = data.pop('names')
+            if "names" in data.keys():
+                header = data.pop("names")
             else:
                 header = list(data.keys())
 
             example = list(data.values())[0]
             if isinstance(example, list):
                 values = [data[key] for key in header]
-                data = list(zip_longest(*values, fillvalue=''))
+                data = list(zip_longest(*values, fillvalue=""))
             else:
                 t = []
                 for key in header:
@@ -55,15 +55,12 @@ class TabFormatter(object):
         if not isinstance(data, list):
             raise TypeError("expecting a list")
 
-        return "\n".join(
-            "\t".join(str(c) for c in row)
-            for row in data
-        )
+        return "\n".join("\t".join(str(c) for c in row) for row in data)
 
 
 all_formatters = {
-    'json': JSONFormatter(indent=2),
-    'markdown': TableFormatter(table_cls=GithubFlavoredMarkdownTable),
-    'table': TableFormatter(),
-    'tab': TabFormatter()
+    "json": JSONFormatter(indent=2),
+    "markdown": TableFormatter(table_cls=GithubFlavoredMarkdownTable),
+    "table": TableFormatter(),
+    "tab": TabFormatter(),
 }
