@@ -49,13 +49,15 @@ The ``adr`` runner comes with a logger setup to log to stderr. You can access it
 
 .. code-block:: python
 
-    from adr import logger
+    from loguru import logger
 
     def run(args):
         logger.info("Starting recipe")
 
-Logging is handled by the `loguru`_ module. See that project's documentation for more details. The
-default log level is ``INFO`` and passing in the global ``--verbose`` flag changes the level to
+Logging is handled by the `loguru`_ module, and importing ``logger`` will
+automatically use the same logging instance that ``adr`` sets up. See that
+project's documentation for more details. The default log level is ``INFO`` and
+passing in the global ``--verbose`` flag changes the level to
 ``DEBUG``.
 
 Using Configuration
@@ -168,8 +170,40 @@ Defining Context
 But just knowing that a recipe uses a particular context value isn't enough, that value needs to
 actually be defined somewhere. There are three locations you can define context:
 
-1. In the recipe itself. This is best for recipes that use one-off context values, or need to use
-   context outside of query. These go in the ``RUN_CONTEXTS`` global variable, e.g:
+1. The easiest (and recommended) place to define context is in a shared ``context.yml`` file. This
+   option is useful when you have many recipes/queries that need to use the same context definition
+   over and over.  It lives in the same directory as the recipes that use it. For example:
+
+.. code-block:: yaml
+
+    foo:
+        flags: ["-f", "--foo"]
+        dest: "foo"
+        action: "store_true"
+        default: false
+        help: "Store true in the 'foo' context"
+
+2. Context can also be defined in the query itself. This is useful when you want to tweak knobs when
+   running standalone queries (e.g with ``adr query``). This method is also nice because it keeps
+   the definition close the usage of the context. These go in an extra ``context`` key:
+
+.. code-block:: yaml
+
+    from: task
+    ...
+    context:
+        foo:
+            flags: ["-f", "--foo"]
+            dest: "foo"
+            action: "store_true"
+            default: false
+            help: "Store true in the 'foo' context"
+
+   This context key will be removed from the query before it gets submitted to ActiveData.
+
+3. Finally, context can live in recipe itself. This is only for context that is used directly by the
+   recipe, queries won't be able to discover context defined here. As such, this method isn't
+   typically recommended. These go in the ``RUN_CONTEXTS`` global variable, e.g:
 
 .. code-block:: python
 
@@ -194,37 +228,27 @@ actually be defined somewhere. There are three locations you can define context:
    Note that the context definitions mirror the arguments to
    ``argparse.ArgumentParser.add_argument``.
 
-2. In the query. This is useful when you want to tweak knobs when running standalone queries (e.g
-   with ``adr query``). This method is also nice because it keeps the definition close the usage of
-   the context. These go in an extra ``context`` key:
-
-.. code-block:: yaml
-
-    from: task
-    ...
-    context:
-        foo:
-            flags: ["-f", "--foo"]
-            dest: "foo"
-            action: "store_true"
-            default: false
-            help: "Store true in the 'foo' context"
-
-3. In a shared ``context.yml`` file. This option is useful when you have many recipes/queries that
-   need to use the same context definition over and over. It lives in the same directory as the
-   recipes that use it. For example:
-
-.. code-block:: yaml
-
-    foo:
-        flags: ["-f", "--foo"]
-        dest: "foo"
-        action: "store_true"
-        default: false
-        help: "Store true in the 'foo' context"
 
 When the ``adr`` runner determines that your recipe uses a given context value, it will search all
-three locations. If no context matching the name was found an exception is raised.
+three locations. If no context matching the name was found an exception is raised. In most cases,
+just defining the context in ``context.yml`` will accomplish what you want.
+
+
+Overriding Shared Context
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Sometimes a recipe may wish to override a context, for example maybe a recipe wants to use a
+different default value. This is possible via the :func:`~adr.context.override` function:
+
+.. code-block:: python
+
+    from adr.context import override
+
+    RUN_CONTEXTS = [
+        override('branch', default="mozilla-beta"),
+    ]
+
+This will only modify the default value of the ``branch`` context, leaving the rest as is.
 
 
 Project Structure

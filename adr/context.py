@@ -147,8 +147,7 @@ def extract_context_names(query):
 
 
 def get_context_definitions(definitions, specific_defs=collections.OrderedDict()):
-    """
-    Build full context definitions from list of contexts with pre-defined definitions
+    """Build full context definitions from list of contexts with pre-defined definitions.
 
     Args:
         definitions (list): mixed array of string and context definitions
@@ -180,18 +179,17 @@ def get_context_definitions(definitions, specific_defs=collections.OrderedDict()
 
 
 def extract_arguments(func, call, members=None):
-    """
-    Extract children calls and arguments attributes from a function object
+    """Extract children calls and arguments attributes from a function object.
+
     Args:
-        func(function object): function object to extract
-        call(str): name of child function being called inside func
-        members(list): extractor function with the found ast.Call,
+        func (function): function object to extract
+        call (str): name of child function being called inside func
+        members (list): extractor function with the found ast.Call,
                     default to get first string argument
 
     Returns:
         calls (set): set of extracted values
         attrs (set): set of attributes
-
     """
     module = inspect.getmodule(func)
     if not members:
