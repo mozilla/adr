@@ -1,0 +1,17 @@
+[ui]
+tweakdefaults = true
+
+[diff]
+showfunc = 1
+unified = 8
+
+[extensions]
+churn =
+rebase =
+show =
+robustcheckout = /setup/robustcheckout.py
+
+[pager]
+pager = LESS=FRSXQ less
+quiet = true
+attend = diff,status,log,annotate,show,view,wip,incoming,outgoing,help

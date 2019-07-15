@@ -1,0 +1,54 @@
+#!/usr/bin/env python3
+
+"""Usage: run-adr <repo> <recipe> <args>"""
+
+import os
+import subprocess
+import sys
+from argparse import ArgumentParser, REMAINDER
+from pathlib import Path
+
+here = Path(__file__).parent.resolve()
+CHECKOUTS = here.parent / "checkouts"
+
+
+def setup_repo(repo, ref=None, checkout_dir=None):
+    ref = ref or 'master'
+    checkout_dir = checkout_dir or CHECKOUTS
+    repo_dir = checkout_dir / repo.rsplit('/', 1)[-1]
+
+    if not checkout_dir.is_dir():
+        os.makedirs(checkout_dir)
+
+    if repo_dir.is_dir():
+        cmd = ['git', 'pull']
+    else:
+        if "://" not in repo:
+            repo = f"https://github.com/{repo}"
+        cmd = ['git', 'clone', repo, repo_dir.as_posix()]
+
+    subprocess.call(cmd, cwd=checkout_dir)
+    subprocess.call(['git', 'checkout', ref], cwd=repo_dir)
+    return repo_dir
+
+
+def cli(args=sys.argv[1:]):
+    parser = ArgumentParser(usage=__doc__)
+    parser.add_argument("repo",
+                        help="Url (or Github shorthand) to recipe repository.")
+    parser.add_argument("recipe", nargs=REMAINDER,
+                        help="Name of the recipe to run followed by arguments to pass in.")
+    parser.add_argument("--checkout-dir", default=None,
+                        help="Directory to clone recipe repositories.")
+    parser.add_argument("--ref", default=None,
+                        help="Revision, branch or tag to checkout in the repo (default: master).")
+    args = parser.parse_args(args)
+
+    repo_dir = setup_repo(args.repo, ref=args.ref, checkout_dir=args.checkout_dir)
+    subprocess.call(['poetry', 'install'], cwd=repo_dir)
+    cmd = ['poetry', 'run', 'adr'] + args.recipe
+    subprocess.call(cmd, cwd=repo_dir)
+
+
+if __name__ == '__main__':
+    sys.exit(cli())

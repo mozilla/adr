@@ -117,6 +117,10 @@ So the returned data will look something like:
         ]
     }
 
+
+Inspecting ActiveData
+~~~~~~~~~~~~~~~~~~~~~
+
 One of the challenges of writing queries is knowing what tables and attributes exist. The ``adr``
 runner comes with a built-in ``inspect`` recipe you can use to see a list of available names:
 
