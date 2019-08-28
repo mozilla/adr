@@ -10,7 +10,7 @@ from loguru import logger
 
 from adr import config, context, sources
 from adr.context import RequestParser
-from adr.errors import MissingDataError
+from adr.errors import MissingDataError, RecipeException
 from adr.formatter import all_formatters
 from adr.query import load_query_context
 
@@ -89,8 +89,13 @@ def run_recipe(recipe, args, from_cli=True):
     try:
         mod = get_module(recipe)
         output = mod.run(Namespace(**parsed_args))
+        if output is None:
+            raise RecipeException()
     except MissingDataError:
         return "ActiveData didn't return any data."
+    except RecipeException:
+        return ("The query has successfully returned but no data is available for"
+                "formatting. Does your run function have a return statement")
 
     if isinstance(config.fmt, str):
         fmt = all_formatters[config.fmt]
