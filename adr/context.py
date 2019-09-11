@@ -46,7 +46,6 @@ class RequestParser(ArgumentParser):
             if "type" in definition:
                 if definition["type"] in globals():
                     definition["type"] = globals()[definition["type"]]
-                    print(definition["type"])
                 elif definition["type"] in __builtins__:
                     definition["type"] = __builtins__[definition["type"]]
 
