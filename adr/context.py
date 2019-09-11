@@ -28,13 +28,6 @@ def load_shared_context():
     with open(context_path, "r") as fh:
         context = yaml.load(fh, Loader=yaml.SafeLoader)
 
-    for key, value in context.items():
-        # transform 'type' key
-        if "type" in value:
-            if value["type"] in globals():
-                value["type"] = globals()[value["type"]]
-            elif value["type"] in __builtins__:
-                value["type"] = __builtins__[value["type"]]
     return context
 
 
@@ -48,6 +41,14 @@ class RequestParser(ArgumentParser):
 
             if definition.pop("hidden", None):
                 definition["help"] = SUPPRESS
+
+            # transform 'type' key
+            if "type" in definition:
+                if definition["type"] in globals():
+                    definition["type"] = globals()[definition["type"]]
+                    print(definition["type"])
+                elif definition["type"] in __builtins__:
+                    definition["type"] = __builtins__[definition["type"]]
 
             self.add_argument(*flags, **definition)
 
