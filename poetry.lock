@@ -71,7 +71,7 @@ description = "Cachy provides a simple yet effective caching library."
 name = "cachy"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
-version = "0.2.0"
+version = "0.3.0"
 
 [[package]]
 category = "main"
@@ -605,7 +605,7 @@ version = "0.6.0"
 more-itertools = "*"
 
 [metadata]
-content-hash = "6acb57ac02e49504c7ad1ac4c286ece022016527f0a4a6fb1c9a7247fdac31f8"
+content-hash = "7de5d6178dda5ebc204090e8653eb4e8688329950a6fad87227c42a33f6023fe"
 python-versions = "^3.6"
 
 [metadata.hashes]
@@ -616,7 +616,7 @@ atomicwrites = ["03472c30eb2c5d1ba9227e4c2ca66ab8287fbfbbda3888aa93dc2e28fc6811b
 attrs = ["69c0dbf2ed392de1cb5ec704444b08a5ef81680a61cb899dc08127123af36a79", "f0b870f674851ecbfbbbd364d6b5cbdff9dcedbc7f3f5e18a6891057f21fe399"]
 babel = ["6778d85147d5d85345c14a26aada5e478ab04e39b078b0745ee6870c2b5cf669", "8cba50f48c529ca3fa18cf81fa9403be176d374ac4d60738b839122dfaaa3d23"]
 better-exceptions-fork = ["5f0983da51e956dbdaf8b9a3d10e2774b382ce6c6ff2e54685c33e2dbe8f1472"]
-cachy = ["b71513e5a38ce90c1280c02b7d8d6bb3fdf64666c9cc0584f2479afea097d56c", "b71e8e7ddb5b386e23e81befdfac8a93885406139b8681bedc17b3444fcb8fca"]
+cachy = ["186581f4ceb42a0bbe040c407da73c14092379b1e4c0e327fdb72ae4a9b269b1", "338ca09c8860e76b275aff52374330efedc4d5a5e45dc1c5b539c1ead0786fe7"]
 certifi = ["59b7658e26ca9c7339e00f8f4636cdfe59d34fa37b9b04f6f9e9926b3cece1a5", "b26104d6835d1f5e49452a26eb2ff87fe7090b89dfcaee5ea2212697e1e1d7ae"]
 chardet = ["84ab92ed1c4d4f16916e05906b6b75a6c0fb5db821cc65e70cbd64a3e2a5eaae", "fc323ffcaeaed0e0a02bf4d117757b98aed530d9ed4531e3e15460124c106691"]
 click = ["2335065e6395b9e67ca716de5f7526736bfa6ceead690adf616d925bdc622b13", "5b94b49521f6456670fdb30cd82a4eca9412788a93fa6dd6df72c94d5a8ff2d7"]
