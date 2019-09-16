@@ -41,11 +41,7 @@ def query_activedata(query, url):
             print(response.text)
         response.raise_for_status()
 
-    json_response = response.json()
-    if not json_response.get("data"):
-        logger.debug("JSON Response:\n{response}", response=json.dumps(json_response, indent=2))
-        raise MissingDataError("ActiveData didn't return any data.")
-    return json_response
+    return response.json()
 
 
 def load_query(name):
@@ -109,7 +105,7 @@ def run_query(name, args):
     """
     context = vars(args)
     formatted_context = ", ".join([f"{k}={v}" for k, v in context.items()])
-    logger.debug(f"Running query {name} with context: {formatted_context}")
+    logger.debug(f"Running query '{name}' with context: {formatted_context}")
     query = load_query(name)
 
     if "limit" not in query and "limit" in context:
@@ -133,6 +129,10 @@ def run_query(name, args):
 
     logger.debug(f"JSON representation of query:\n{query_str}")
     result = query_activedata(query_str, config.url)
+    if not result.get("data"):
+        logger.warning(f"Query '{name}' returned no data with context: {formatted_context}")
+        logger.debug("JSON Response:\n{response}", response=json.dumps(result, indent=2))
+        raise MissingDataError("ActiveData didn't return any data.")
 
     config.cache.put(key, result, config["cache"]["retention"])
     return result
