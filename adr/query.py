@@ -127,7 +127,7 @@ def run_query(name, args):
         logger.debug(f"Loading results from cache")
         return config.cache.get(key)
 
-    logger.debug(f"JSON representation of query:\n{query_str}")
+    logger.trace(f"JSON representation of query:\n{query_str}")
     result = query_activedata(query_str, config.url)
     if not result.get("data"):
         logger.warning(f"Query '{name}' returned no data with context: {formatted_context}")
