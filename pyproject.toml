@@ -47,7 +47,7 @@ tomlkit = "^0.5.3"
 cachy = ">=0.2,<0.4"
 redis = {version = "^3.2",optional = true}
 python3-memcached = {version = "^1.51",optional = true}
-loguru = "^0.2.5"
+loguru = ">=0.2.5,<0.4.0"
 
 [tool.poetry.dev-dependencies]
 flake8 = "^3.7.7"
