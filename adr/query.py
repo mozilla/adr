@@ -75,7 +75,6 @@ def load_query_context(name, add_contexts=[]):
         query_contexts (list): mixed array of strings (name of common contexts)
          and dictionaries (full definition of specific contexts)
     """
-
     with open(sources.get(name, query=True)) as fh:
         query = yaml.load(fh, Loader=yaml.SafeLoader)
         # Extract query and context
