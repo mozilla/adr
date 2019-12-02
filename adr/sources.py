@@ -33,7 +33,7 @@ class Source:
 
     @property
     def queries(self):
-        if self._queries:
+        if self._queries or not self.query_dir.is_dir():
             return self._queries
 
         self._queries = [
@@ -84,7 +84,7 @@ class SourceHandler:
     def _find_source(self, name, query=False):
         sources = self._sources
         if query and "recipe" in config:
-            sources = [s for s in sources if config.recipe in s.recipes]
+            sources = [s for s in sources if config.recipe in s.recipes or not s.recipe_dir]
 
         attr = "queries" if query else "recipes"
 
