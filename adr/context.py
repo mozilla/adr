@@ -18,7 +18,7 @@ def validdatetime(string):
 
 @memoize
 def load_shared_context():
-    if not sources.active_source:
+    if not sources.active_source or not sources.active_source.recipe_dir.is_dir():
         return {}
 
     context_path = sources.active_source.recipe_dir / "context.yml"
