@@ -38,6 +38,19 @@ class LogFormatter:
         return self.fmt
 
 
+def setup_logging():
+    # Configure logging.
+    logger.remove()
+    if config.verbose >= 2:
+        level = "TRACE"
+    elif config.verbose >= 1:
+        level = "DEBUG"
+    else:
+        level = "INFO"
+    fmt = os.environ.get("LOGURU_FORMAT", LogFormatter().format)
+    logger.add(sys.stderr, level=level, format=fmt)
+
+
 class DefaultSubParser(argparse.ArgumentParser):
     __default_subparser = None
 
@@ -218,16 +231,7 @@ def main(args=sys.argv[1:]):
     delattr(args, "func")
     config.merge(vars(args))
 
-    # Configure logging.
-    logger.remove()
-    if config.verbose >= 2:
-        level = "TRACE"
-    elif config.verbose >= 1:
-        level = "DEBUG"
-    else:
-        level = "INFO"
-    fmt = os.environ.get("LOGURU_FORMAT", LogFormatter().format)
-    logger.add(sys.stderr, level=level, format=fmt)
+    setup_logging()
 
     # Pass remaining args to the appropriate handler.
     result = handler(remainder)
