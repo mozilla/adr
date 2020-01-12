@@ -105,3 +105,8 @@ ENV/
 
 # mypy
 .mypy_cache/
+.idea
+.svn
+*.iml
+
+/requirements.txt

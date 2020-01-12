@@ -5,6 +5,7 @@ import json
 import os
 import time
 from argparse import Namespace
+from json import JSONDecodeError
 
 import jsone
 import requests
@@ -128,6 +129,30 @@ def run_query(name, args):
 
     logger.trace(f"JSON representation of query:\n{query_str}")
     result = query_activedata(query_str, config.url)
+
+    if result.get('url'):
+        # We must wait for the content
+        problem = 0
+        while problem < 3:
+            time.sleep(2)
+            try:
+                monitor = requests.get(result['status']).json()
+                logger.debug(f"waiting: {json.dumps(monitor)}")
+                problem = 0
+                if monitor['status'] == 'done':
+                    big_result = requests.get(result['url']).json()
+                    # The big response is a simple list of objects, without any metadata
+                    result = {"data": big_result, "format": "list"}
+                    break
+                elif monitor['status'] == 'error':
+                    raise Exception("Problem with query " + json.dumps(monitor['error']))
+                else:
+                    logger.debug(f"status=\"{monitor['status']}\", waiting for \"done\"")
+            except JSONDecodeError:
+                # HAPPENS WHEN ASKING FOR status TOO SOON
+                # (DELAY BETWEEN TIME WRITTEN TO S3 AND TIME AVAILABLE FROM S3)
+                problem += 1
+
     if not result.get("data"):
         logger.warning(f"Query '{name}' returned no data with context: {formatted_context}")
         logger.debug("JSON Response:\n{response}", response=json.dumps(result, indent=2))
