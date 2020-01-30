@@ -16,6 +16,7 @@ from adr import config, context, sources
 from adr.context import RequestParser
 from adr.errors import MissingDataError
 from adr.formatter import all_formatters
+from adr.util.req import requests_retry_session
 
 here = os.path.abspath(os.path.dirname(__file__))
 
@@ -136,11 +137,11 @@ def run_query(name, args):
         while problem < 3:
             time.sleep(2)
             try:
-                monitor = requests.get(result['status']).json()
+                monitor = requests_retry_session.get(result['status']).json()
                 logger.debug(f"waiting: {json.dumps(monitor)}")
                 problem = 0
                 if monitor['status'] == 'done':
-                    big_result = requests.get(result['url']).json()
+                    big_result = requests_retry_session.get(result['url']).json()
                     # The big response is a simple list of objects, without any metadata
                     result = {"data": big_result, "format": "list"}
                     break
