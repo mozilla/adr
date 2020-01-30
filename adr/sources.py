@@ -7,17 +7,21 @@ from adr import config
 
 class Source:
     def __init__(self, path):
-        self.recipe_dir = Path(path).expanduser().resolve()
-        self._recipes = None
-        self._queries = None
+        if path.name.endswith('recipes'):
+            self.recipe_dir = Path(path).expanduser().resolve()
+            self.query_dir = self.recipe_dir / "queries"
+        elif path.name.endswith('queries'):
+            self.recipe_dir = None
+            self.query_dir = Path(path).expanduser().resolve()
+        else:
+            print(f"error: {path} is not a valid source!")
 
-    @property
-    def query_dir(self):
-        return self.recipe_dir / "queries"
+        self._recipes = []
+        self._queries = []
 
     @property
     def recipes(self):
-        if self._recipes:
+        if self._recipes or not self.recipe_dir:
             return self._recipes
 
         self._recipes = [
@@ -29,7 +33,7 @@ class Source:
 
     @property
     def queries(self):
-        if self._queries:
+        if self._queries or not self.query_dir.is_dir():
             return self._queries
 
         self._queries = [
@@ -45,26 +49,29 @@ class SourceHandler:
     def __init__(self, sources):
         self._sources = []
         for source in set(sources):
-            source = Path(source).expanduser().resolve()
-
-            recipe_dirs = [p for p in source.glob("*recipes") if p.is_dir()]
-
-            if not recipe_dirs:
-                if source.as_posix() != os.getcwd():
-                    print(f"warning: {source} does not contain any recipes!")
-                continue
-
-            for recipe_dir in recipe_dirs:
-                source = Source(recipe_dir)
-                if not source.recipes:
-                    continue
-                self._sources.append(source)
+            self.load_source(source)
 
     def __len__(self):
         return len(self._sources)
 
     def __getitem__(self, i):
         return self._sources[i]
+
+    def load_source(self, source):
+        source = Path(source).expanduser().resolve()
+
+        recipe_dirs = [p for p in source.glob("*recipes") if p.is_dir()]
+        query_dirs = [p for p in source.glob("*queries") if p.is_dir()]
+        if not (recipe_dirs or query_dirs):
+            if source.as_posix() != os.getcwd():
+                print(f"warning: {source} does not contain any recipes or queries!")
+            return
+
+        for source_dir in recipe_dirs + query_dirs:
+            source = Source(source_dir)
+            if not (source.recipes or source.queries):
+                continue
+            self._sources.append(source)
 
     @property
     def recipes(self):
@@ -77,7 +84,7 @@ class SourceHandler:
     def _find_source(self, name, query=False):
         sources = self._sources
         if query and "recipe" in config:
-            sources = [s for s in sources if config.recipe in s.recipes]
+            sources = [s for s in sources if config.recipe in s.recipes or not s.recipe_dir]
 
         attr = "queries" if query else "recipes"
 

@@ -5,6 +5,7 @@ import json
 import os
 import time
 from argparse import Namespace
+from json import JSONDecodeError
 
 import jsone
 import requests
@@ -15,6 +16,7 @@ from adr import config, context, sources
 from adr.context import RequestParser
 from adr.errors import MissingDataError
 from adr.formatter import all_formatters
+from adr.util.req import requests_retry_session
 
 here = os.path.abspath(os.path.dirname(__file__))
 
@@ -41,11 +43,7 @@ def query_activedata(query, url):
             print(response.text)
         response.raise_for_status()
 
-    json_response = response.json()
-    if not json_response.get("data"):
-        logger.debug("JSON Response:\n{response}", response=json.dumps(json_response, indent=2))
-        raise MissingDataError("ActiveData didn't return any data.")
-    return json_response
+    return response.json()
 
 
 def load_query(name):
@@ -79,7 +77,6 @@ def load_query_context(name, add_contexts=[]):
         query_contexts (list): mixed array of strings (name of common contexts)
          and dictionaries (full definition of specific contexts)
     """
-
     with open(sources.get(name, query=True)) as fh:
         query = yaml.load(fh, Loader=yaml.SafeLoader)
         # Extract query and context
@@ -109,7 +106,7 @@ def run_query(name, args):
     """
     context = vars(args)
     formatted_context = ", ".join([f"{k}={v}" for k, v in context.items()])
-    logger.debug(f"Running query {name} with context: {formatted_context}")
+    logger.debug(f"Running query '{name}' with context: {formatted_context}")
     query = load_query(name)
 
     if "limit" not in query and "limit" in context:
@@ -131,8 +128,42 @@ def run_query(name, args):
         logger.debug(f"Loading results from cache")
         return config.cache.get(key)
 
-    logger.debug(f"JSON representation of query:\n{query_str}")
+    logger.trace(f"JSON representation of query:\n{query_str}")
     result = query_activedata(query_str, config.url)
+
+    if result.get('url'):
+        # We must wait for the content
+        problem = 0
+        i = 0
+        timeout = 300
+        while problem < 3:
+            time.sleep(2)
+            i += 2
+            try:
+                monitor = requests_retry_session.get(result['status']).json()
+                logger.debug(f"waiting: {json.dumps(monitor)}")
+                problem = 0
+                if monitor['status'] == 'done':
+                    big_result = requests_retry_session.get(result['url']).json()
+                    # The big response is a simple list of objects, without any metadata
+                    result = {"data": big_result, "format": "list"}
+                    break
+                elif monitor['status'] == 'error':
+                    raise MissingDataError("Problem with query " + json.dumps(monitor['error']))
+                elif i > timeout:
+                    raise MissingDataError(f"Timed out after {timeout} seconds waiting "
+                                           "for 'done' status")
+                else:
+                    logger.debug(f"status=\"{monitor['status']}\", waiting for \"done\"")
+            except JSONDecodeError:
+                # HAPPENS WHEN ASKING FOR status TOO SOON
+                # (DELAY BETWEEN TIME WRITTEN TO S3 AND TIME AVAILABLE FROM S3)
+                problem += 1
+
+    if not result.get("data"):
+        logger.warning(f"Query '{name}' returned no data with context: {formatted_context}")
+        logger.debug("JSON Response:\n{response}", response=json.dumps(result, indent=2))
+        raise MissingDataError("ActiveData didn't return any data.")
 
     config.cache.put(key, result, config["cache"]["retention"])
     return result

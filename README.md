@@ -83,6 +83,14 @@ Alternatively activate the `poetry` shell ahead of time:
     # run tests
     $ tox
 
+# Pip Install
+
+If for any reason Poetry is not fully supported, you can generate a requirements file for pip install: 
+
+    poetry export -f requirements.txt > requirements.txt
+    c:\Python36\python -m pip install -r requirements.txt
+
+
 [0]: https://active-data-recipes.readthedocs.io
 [1]: https://github.com/mozilla/ActiveData
 [2]: https://github.com/mozilla/active-data-recipes

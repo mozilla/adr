@@ -38,6 +38,19 @@ class LogFormatter:
         return self.fmt
 
 
+def setup_logging():
+    # Configure logging.
+    logger.remove()
+    if config.verbose >= 2:
+        level = "TRACE"
+    elif config.verbose >= 1:
+        level = "DEBUG"
+    else:
+        level = "INFO"
+    fmt = os.environ.get("LOGURU_FORMAT", LogFormatter().format)
+    logger.add(sys.stderr, level=level, format=fmt)
+
+
 class DefaultSubParser(argparse.ArgumentParser):
     __default_subparser = None
 
@@ -89,8 +102,9 @@ def get_parser():
         parser.add_argument(
             "-v",
             "--verbose",
-            action="store_true",
-            help="Print the query and other debugging information.",
+            action="count",
+            default=0,
+            help="Increase verbosity (can be passed multiple times)."
         )
         parser.add_argument("-u", "--url", help="ActiveData endpoint URL.")
         parser.add_argument("-o", "--output-file", type=str, help="Full path of the output file")
@@ -160,12 +174,12 @@ def handle_list(remainder):
     key = "queries" if config.subcommand == "query" else "recipes"
     lines = []
     for source in sources:
-        if config.verbose:
+        if config.verbose > 0:
             attr = getattr(source, f"{config.subcommand}_dir")
             lines.append(f"\n{key.capitalize()} from {attr}:")
 
         items = sorted(getattr(source, key))
-        if config.verbose:
+        if config.verbose > 0:
             items = ["  " + i for i in items]
         lines.extend(items)
 
@@ -217,11 +231,7 @@ def main(args=sys.argv[1:]):
     delattr(args, "func")
     config.merge(vars(args))
 
-    # Configure logging.
-    logger.remove()
-    level = "DEBUG" if config.verbose else "INFO"
-    fmt = os.environ.get("LOGURU_FORMAT", LogFormatter().format)
-    logger.add(sys.stderr, level=level, format=fmt)
+    setup_logging()
 
     # Pass remaining args to the appropriate handler.
     result = handler(remainder)

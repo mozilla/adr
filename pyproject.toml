@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "adr"
-version = "0.16.2"
+version = "0.16.7"
 description = "Utility for running ActiveData recipes"
 
 packages = [
@@ -40,20 +40,20 @@ terminaltables = "^3.1.0"
 pyyaml = "^5.1"
 flask = "^1.0.2"
 markdown = "^3.0.1"
-docutils = "^0.14"
+docutils = ">=0.14,<0.16"
 pygments = "^2.3.1"
 appdirs = "^1.4"
 tomlkit = "^0.5.3"
-cachy = "^0.2.0"
+cachy = ">=0.2,<0.4"
 redis = {version = "^3.2",optional = true}
 python3-memcached = {version = "^1.51",optional = true}
-loguru = "^0.2.5"
+loguru = ">=0.2.5,<0.4.0"
 
 [tool.poetry.dev-dependencies]
-flake8 = "^3.7.7"
+flake8 = "^3.7.9"
 flake8-import-order = "^0.18.1"
-pytest = "^3.0.0"
-tox = "^3.7.0"
-sphinx = "^2.0"
+pytest = "^5.3.2"
+tox = "^3.14.3"
+sphinx = "^2.3"
 sphinx_rtd_theme = "^0.4.3"
-codespell = "^1.15"
+codespell = "^1.16"
