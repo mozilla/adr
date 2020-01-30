@@ -134,8 +134,11 @@ def run_query(name, args):
     if result.get('url'):
         # We must wait for the content
         problem = 0
+        i = 0
+        timeout = 300
         while problem < 3:
             time.sleep(2)
+            i += 2
             try:
                 monitor = requests_retry_session.get(result['status']).json()
                 logger.debug(f"waiting: {json.dumps(monitor)}")
@@ -146,7 +149,10 @@ def run_query(name, args):
                     result = {"data": big_result, "format": "list"}
                     break
                 elif monitor['status'] == 'error':
-                    raise Exception("Problem with query " + json.dumps(monitor['error']))
+                    raise MissingDataError("Problem with query " + json.dumps(monitor['error']))
+                elif i > timeout:
+                    raise MissingDataError(f"Timed out after {timeout} seconds waiting "
+                                           "for 'done' status")
                 else:
                     logger.debug(f"status=\"{monitor['status']}\", waiting for \"done\"")
             except JSONDecodeError:
