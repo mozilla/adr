@@ -1,11 +1,17 @@
 import datetime
 import json
+import sys
 
-from flask import Flask, Markup, make_response, render_template, request
 from requests.exceptions import HTTPError
 
 from adr import config, recipe, sources
 from adr.context import validdatetime
+
+try:
+    from flask import Flask, Markup, make_response, render_template, request
+except ImportError:
+    print("Flask is missing, ensure the 'app' extra is installed: pip install adr[app]")
+    sys.exit(1)
 
 app = Flask(__name__)
 
