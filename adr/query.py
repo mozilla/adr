@@ -140,11 +140,11 @@ def run_query(name, args):
             time.sleep(2)
             i += 2
             try:
-                monitor = requests_retry_session.get(result['status']).json()
+                monitor = requests_retry_session().get(result['status']).json()
                 logger.debug(f"waiting: {json.dumps(monitor)}")
                 problem = 0
                 if monitor['status'] == 'done':
-                    big_result = requests_retry_session.get(result['url']).json()
+                    big_result = requests_retry_session().get(result['url']).json()
                     # The big response is a simple list of objects, without any metadata
                     result = {"data": big_result, "format": "list"}
                     break
