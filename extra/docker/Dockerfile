@@ -4,6 +4,7 @@ MAINTAINER Andrew Halberstadt <ahal@mozilla.com>
 RUN mkdir /builds
 RUN useradd -d /builds/worker -s /bin/bash -m worker
 WORKDIR /builds/worker
+ADD VERSION .
 
 VOLUME /builds/worker/.cache
 VOLUME /builds/worker/checkouts
