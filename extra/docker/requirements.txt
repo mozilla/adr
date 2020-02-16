@@ -4,9 +4,9 @@
 #
 #    pip-compile --generate-hashes requirements.in
 #
-adr==0.17.2 \
-    --hash=sha256:3691a89f1fb1bf4e4726f1ef2e52323f88390c9d2f59e357db5d30e1642c46f1 \
-    --hash=sha256:6355145736c4eddded905b2642a79ee9a977ba079aa3077ae25c34666c665a7e
+adr==0.17.3 \
+    --hash=sha256:5285fb0e737603a0a763df55aa332a47d6b8d85613e82bd1a3b7b9bc1053c2ae \
+    --hash=sha256:9b7d68bc453f15e6051f299a91ad88f12802d1d8023a31b05de11fb16f7612d6
 ansimarkup==1.4.0 \
     --hash=sha256:06365e3ef89a12734fc408b2449cb4642d5fe2e603e95e7296eff9e98a0fe0b4 \
     --hash=sha256:174d920481416cec8d5a707af542d6fba25a1df1c21d8996479c32ba453649a4 \
@@ -41,10 +41,6 @@ cleo==0.6.8 \
     --hash=sha256:85a63076b72ca376fb06668be1fc7758dc16740b394783d5cc65200c4b32f71b \
     --hash=sha256:9b7f79f1aa470a025c0d28c76aa225ee9e65028d32f80032e871aa3500df61b8 \
     # via poetry
-click==7.0 \
-    --hash=sha256:2335065e6395b9e67ca716de5f7526736bfa6ceead690adf616d925bdc622b13 \
-    --hash=sha256:5b94b49521f6456670fdb30cd82a4eca9412788a93fa6dd6df72c94d5a8ff2d7 \
-    # via flask
 colorama==0.4.1 \
     --hash=sha256:05eed71e2e327246ad6b38c540c4a3117230b19679b875190486ddd2d721422d \
     --hash=sha256:f8ac84de7840f5b9c4e3347b3c1eaa50f7e49c2b07596221daec5edaabbd7c48 \
@@ -54,10 +50,6 @@ docutils==0.14 \
     --hash=sha256:51e64ef2ebfb29cae1faa133b3710143496eca21c530f3f71424d77687764274 \
     --hash=sha256:7a4bd47eaf6596e1295ecb11361139febe29b084a87bf005bf899f9a42edc3c6 \
     # via adr
-flask==1.1.1 \
-    --hash=sha256:13f9f196f330c7c2c5d7a5cf91af894110ca0215ac051b5844701f2bfd934d52 \
-    --hash=sha256:45eb5a6fd193d6cf7e0cf5d8a5b31f83d5faae0293695626f539a823e93b13f6 \
-    # via adr
 html5lib==1.0.1 \
     --hash=sha256:20b159aa3badc9d5ee8f5c647e5efd02ed2a66ab8d354930bd9ff139fc1dc0a3 \
     --hash=sha256:66cb0dcfdbbc4f9c3ba1a63fdb511ffdbd4f513b2b6d81b80cd26ce6b3fb3736 \
@@ -66,14 +58,6 @@ idna==2.8 \
     --hash=sha256:c357b3f628cf53ae2c4c05627ecc484553142ca23264e593d327bcde5e9c3407 \
     --hash=sha256:ea8b7f6188e6fa117537c3df7da9fc686d485087abf6ac197f9c46432f7e4a3c \
     # via requests
-itsdangerous==1.1.0 \
-    --hash=sha256:321b033d07f2a4136d3ec762eac9f16a10ccd60f53c0c91af90217ace7ba1f19 \
-    --hash=sha256:b12271b2047cb23eeb98c8b5622e2e5c5e9abd9784a153e9d8ef9cb4dd09d749 \
-    # via flask
-jinja2==2.10.1 \
-    --hash=sha256:065c4f02ebe7f7cf559e49ee5a95fb800a9e4528727aec6f24402a5374c65013 \
-    --hash=sha256:14dd6caf1527abb21f08f86c784eac40853ba93edb79552aa1e4b8aef1b61c7b \
-    # via flask
 json-e==3.0.0 \
     --hash=sha256:d2914f785d93ecc4f0b2ad6e3f2791f33327eaa740a3c4917d68a9a485dd282d \
     # via adr
@@ -93,36 +77,6 @@ markdown==3.1.1 \
     --hash=sha256:2e50876bcdd74517e7b71f3e7a76102050edec255b3983403f1a63e7c8a41e7a \
     --hash=sha256:56a46ac655704b91e5b7e6326ce43d5ef72411376588afa1dd90e881b83c7e8c \
     # via adr
-markupsafe==1.1.1 \
-    --hash=sha256:00bc623926325b26bb9605ae9eae8a215691f33cae5df11ca5424f06f2d1f473 \
-    --hash=sha256:09027a7803a62ca78792ad89403b1b7a73a01c8cb65909cd876f7fcebd79b161 \
-    --hash=sha256:09c4b7f37d6c648cb13f9230d847adf22f8171b1ccc4d5682398e77f40309235 \
-    --hash=sha256:1027c282dad077d0bae18be6794e6b6b8c91d58ed8a8d89a89d59693b9131db5 \
-    --hash=sha256:24982cc2533820871eba85ba648cd53d8623687ff11cbb805be4ff7b4c971aff \
-    --hash=sha256:29872e92839765e546828bb7754a68c418d927cd064fd4708fab9fe9c8bb116b \
-    --hash=sha256:43a55c2930bbc139570ac2452adf3d70cdbb3cfe5912c71cdce1c2c6bbd9c5d1 \
-    --hash=sha256:46c99d2de99945ec5cb54f23c8cd5689f6d7177305ebff350a58ce5f8de1669e \
-    --hash=sha256:500d4957e52ddc3351cabf489e79c91c17f6e0899158447047588650b5e69183 \
-    --hash=sha256:535f6fc4d397c1563d08b88e485c3496cf5784e927af890fb3c3aac7f933ec66 \
-    --hash=sha256:62fe6c95e3ec8a7fad637b7f3d372c15ec1caa01ab47926cfdf7a75b40e0eac1 \
-    --hash=sha256:6dd73240d2af64df90aa7c4e7481e23825ea70af4b4922f8ede5b9e35f78a3b1 \
-    --hash=sha256:717ba8fe3ae9cc0006d7c451f0bb265ee07739daf76355d06366154ee68d221e \
-    --hash=sha256:79855e1c5b8da654cf486b830bd42c06e8780cea587384cf6545b7d9ac013a0b \
-    --hash=sha256:7c1699dfe0cf8ff607dbdcc1e9b9af1755371f92a68f706051cc8c37d447c905 \
-    --hash=sha256:88e5fcfb52ee7b911e8bb6d6aa2fd21fbecc674eadd44118a9cc3863f938e735 \
-    --hash=sha256:8defac2f2ccd6805ebf65f5eeb132adcf2ab57aa11fdf4c0dd5169a004710e7d \
-    --hash=sha256:98c7086708b163d425c67c7a91bad6e466bb99d797aa64f965e9d25c12111a5e \
-    --hash=sha256:9add70b36c5666a2ed02b43b335fe19002ee5235efd4b8a89bfcf9005bebac0d \
-    --hash=sha256:9bf40443012702a1d2070043cb6291650a0841ece432556f784f004937f0f32c \
-    --hash=sha256:ade5e387d2ad0d7ebf59146cc00c8044acbd863725f887353a10df825fc8ae21 \
-    --hash=sha256:b00c1de48212e4cc9603895652c5c410df699856a2853135b3967591e4beebc2 \
-    --hash=sha256:b1282f8c00509d99fef04d8ba936b156d419be841854fe901d8ae224c59f0be5 \
-    --hash=sha256:b2051432115498d3562c084a49bba65d97cf251f5a331c64a12ee7e04dacc51b \
-    --hash=sha256:ba59edeaa2fc6114428f1637ffff42da1e311e29382d81b339c1817d37ec93c6 \
-    --hash=sha256:c8716a48d94b06bb3b2524c2b77e055fb313aeb4ea620c8dd03a105574ba704f \
-    --hash=sha256:cd5df75523866410809ca100dc9681e301e3c27567cf498077e8551b6d20e42f \
-    --hash=sha256:e249096428b3ae81b08327a63a485ad0878de3fb939049038579ac0ef61e17e7 \
-    # via jinja2
 msgpack==0.6.1 \
     --hash=sha256:26cb40116111c232bc235ce131cc3b4e76549088cb154e66a2eb8ff6fcc907ec \
     --hash=sha256:300fd3f2c664a3bf473d6a952f843b4a71454f4c592ed7e74a36b205c1782d28 \
@@ -219,11 +173,7 @@ webencodings==0.5.1 \
     --hash=sha256:a0af1213f3c2226497a97e2b3aa01a7e4bee4f403f95be16fc9acd2947514a78 \
     --hash=sha256:b36a1c245f2d304965eb4e0a82848379241dc04b865afcc4aab16748587e1923 \
     # via html5lib
-werkzeug==0.15.4 \
-    --hash=sha256:865856ebb55c4dcd0630cdd8f3331a1847a819dda7e8c750d3db6f2aa6c0209c \
-    --hash=sha256:a0b915f0815982fb2a09161cb8f31708052d0951c3ba433ccc5e1aa276507ca6 \
-    # via flask
 
 # WARNING: The following packages were not pinned, but pip requires them to be
 # pinned when the requirements file includes hashes. Consider using the --allow-unsafe flag.
-# setuptools==45.2.0        # via jsonschema, markdown
+# setuptools
