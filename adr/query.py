@@ -8,7 +8,6 @@ from argparse import Namespace
 from json import JSONDecodeError
 
 import jsone
-import requests
 import yaml
 from loguru import logger
 
@@ -33,7 +32,7 @@ def query_activedata(query, url):
     :returns str: json-formatted string.
     """
     start_time = time.time()
-    response = requests.post(url, data=query, stream=True)
+    response = requests_retry_session().post(url, data=query, stream=True)
     logger.debug("Query execution time: " + "{:.3f} ms".format((time.time() - start_time) * 1000.0))
 
     if response.status_code != 200:
