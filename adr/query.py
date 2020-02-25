@@ -8,7 +8,6 @@ from argparse import Namespace
 from json import JSONDecodeError
 
 import jsone
-import requests
 import yaml
 from loguru import logger
 
