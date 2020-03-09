@@ -5,6 +5,7 @@ from pathlib import Path
 from appdirs import user_config_dir
 from cachy import CacheManager
 from cachy.stores import NullStore
+from loguru import logger
 from tomlkit import parse
 
 import adr
@@ -79,6 +80,8 @@ class Configuration(Mapping):
             with open(self.path, "r") as fh:
                 content = fh.read()
                 self.merge(parse(content)["adr"])
+        else:
+            logger.warning(f"Configuration path {self.path} is not a file.")
 
         self._config["sources"] = sorted(map(os.path.expanduser, set(self._config["sources"])))
 
