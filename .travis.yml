@@ -2,7 +2,6 @@ language: python
 python:
     - "3.6"
 install:
-    - pip install poetry
-    - poetry install -E app
+    - pip install tox flake8 poetry
 script:
-    - poetry run tox
+    - tox

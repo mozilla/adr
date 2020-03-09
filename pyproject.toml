@@ -62,3 +62,7 @@ codespell = "^1.16"
 
 [tool.poetry.extras]
 app = ["flask"]
+
+[build-system]
+requires = ["poetry>=1.0.2"]
+build-backend = "poetry.masonry.api"
