@@ -103,6 +103,25 @@ For example:
     [adr.cache.stores]
     file = { driver = "file", path = "/path/to/dir/to/keep/cache" }
 
+In addition, ``adr`` provides a ``seeded-file`` store. This is the same as the "file system" store,
+except you can specify a URL to initially seed your cache on creation:
+
+.. code-block:: toml
+
+    [adr.cache.stores]
+    file = {
+        driver = "seeded-file",
+        path = "/path/to/dir/to/keep/cache",
+        url = "https://example.com/adr_cache.tar.gz"
+    }
+
+Supported archive formats include ``.zip``, ``.tar``, ``.tar.gz``, ``.tar.bz2`` and ``.tar.zst``.
+
+The config also accepts a ``reseed_interval`` (in minutes) which will re-seed the cache after the
+interval expires. This assumes the URL is automatically updated by some other process.
+
+As well as an ``archive_relpath`` config, which specifies the path to the cache data "within" the
+archive. Otherwise the cache data is assumed to be right at the root of the archive.
 
 fmt
 ```

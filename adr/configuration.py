@@ -4,11 +4,11 @@ from pathlib import Path
 
 from appdirs import user_config_dir
 from cachy import CacheManager
-from cachy.stores import NullStore
 from loguru import logger
 from tomlkit import parse
 
 import adr
+from adr.util.cache_stores import NullStore, SeededFileStore
 
 
 def merge_to(source, dest):
@@ -90,6 +90,7 @@ class Configuration(Mapping):
         self._config["cache"].setdefault("stores", {"null": {"driver": "null"}})
         self.cache = CacheManager(self._config["cache"])
         self.cache.extend("null", lambda driver: NullStore())
+        self.cache.extend("seeded-file", SeededFileStore)
         self.locked = True
 
     def __len__(self):

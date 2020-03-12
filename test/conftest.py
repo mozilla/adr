@@ -9,6 +9,7 @@ import pytest
 import yaml
 from requests import Response
 from requests.exceptions import HTTPError
+from responses import RequestsMock
 
 import adr
 
@@ -175,3 +176,9 @@ def validate():
         assert actual == recipe_test['expected']
 
     return do_validate
+
+
+@pytest.fixture
+def responses():
+    with RequestsMock() as rsps:
+        yield rsps
