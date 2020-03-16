@@ -118,4 +118,3 @@ class Configuration(Mapping):
 
 
 config = Configuration()
-sources = None

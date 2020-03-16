@@ -6,8 +6,9 @@ import subprocess
 import sys
 import time
 import webbrowser
-from loguru import logger
 from pathlib import Path
+
+from loguru import logger
 
 from adr import config, sources
 from adr.formatter import all_formatters

@@ -2,7 +2,7 @@ import os
 from itertools import chain
 from pathlib import Path
 
-from adr.configuration import config
+from adr import config
 
 
 class Source:

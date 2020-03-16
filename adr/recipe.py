@@ -8,8 +8,8 @@ from pathlib import Path
 from docutils.core import publish_parts
 from loguru import logger
 
-from adr import sources, config
-from adr.context import RequestParser, extract_arguments, get_context_definitions
+from adr import config, context, sources
+from adr.context import RequestParser
 from adr.errors import MissingDataError, RecipeException
 from adr.formatter import all_formatters
 from adr.query import load_query_context
@@ -39,7 +39,7 @@ def get_recipe_contexts(recipe):
     mod = get_module(recipe)
 
     # try to extract name of query and run contexts automatically from run function
-    queries, run_contexts = extract_arguments(mod.run, "run_query")
+    queries, run_contexts = context.extract_arguments(mod.run, "run_query")
 
     specific_contexts = collections.OrderedDict()
     if hasattr(mod, "RUN_CONTEXTS"):
@@ -53,7 +53,7 @@ def get_recipe_contexts(recipe):
         query_context_def = load_query_context(query_name)
         recipe_context_def.update(query_context_def)
 
-    run_context_def = get_context_definitions(run_contexts, specific_contexts)
+    run_context_def = context.get_context_definitions(run_contexts, specific_contexts)
     recipe_context_def.update(run_context_def)
 
     return recipe_context_def
