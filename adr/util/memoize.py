@@ -37,6 +37,7 @@ class memoized_property(object):
 
     def __init__(self, func):
         self.func = func
+        functools.update_wrapper(self, func)
 
     def __get__(self, instance, cls):
         name = "_%s" % self.func.__name__
