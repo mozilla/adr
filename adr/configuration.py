@@ -67,11 +67,11 @@ class Configuration(Mapping):
         "debug_url": "https://activedata.allizom.org/tools/query.html#query_id={}",
         "fmt": "table",
         "sources": [os.getcwd(), Path(adr.__file__).parent.parent.as_posix()],
-        "url": "http://localhost:5000/query",
+        "url": "https://activedata.allizom.org/query",
         "verbose": False,
     }
 
-    def __init__(self, path=None, config=None):
+    def __init__(self, path=None):
         self.path = Path(path or os.environ.get("ADR_CONFIG_PATH") or self.DEFAULT_CONFIG_PATH)
         self._config={}
         self.update(self.DEFAULTS)
