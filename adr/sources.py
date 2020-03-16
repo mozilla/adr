@@ -2,7 +2,7 @@ import os
 from itertools import chain
 from pathlib import Path
 
-from adr import config
+from adr import configuration
 
 
 class Source:
@@ -83,8 +83,8 @@ class SourceHandler:
 
     def _find_source(self, name, query=False):
         sources = self._sources
-        if query and "recipe" in config:
-            sources = [s for s in sources if config.recipe in s.recipes or not s.recipe_dir]
+        if query and "recipe" in configuration.config:
+            sources = [s for s in sources if configuration.config.recipe in s.recipes or not s.recipe_dir]
 
         attr = "queries" if query else "recipes"
 
@@ -94,11 +94,11 @@ class SourceHandler:
 
     @property
     def active_source(self):
-        recipe = config.get("recipe")
+        recipe = configuration.config.get("recipe")
         if recipe:
             return self._find_source(recipe)
 
-        query = config.get("query")
+        query = configuration.config.get("query")
         if query:
             return self._find_source(query, query=True)
 
@@ -110,4 +110,4 @@ class SourceHandler:
             return source.recipe_dir / (name + ".py")
 
 
-sources = SourceHandler(config.sources)
+configuration.sources = SourceHandler(configuration.config.sources)

@@ -10,7 +10,7 @@ from pathlib import Path
 
 from loguru import logger
 
-from adr import config, sources
+from adr import configuration
 from adr.formatter import all_formatters
 from adr.query import format_query
 from adr.recipe import run_recipe
@@ -41,9 +41,9 @@ class LogFormatter:
 def setup_logging():
     # Configure logging.
     logger.remove()
-    if config.verbose >= 2:
+    if configuration.config.verbose >= 2:
         level = "TRACE"
-    elif config.verbose >= 1:
+    elif configuration.config.verbose >= 1:
         level = "DEBUG"
     else:
         level = "INFO"
@@ -108,7 +108,7 @@ def get_parser():
         )
         parser.add_argument("-u", "--url", help="ActiveData endpoint URL.")
         parser.add_argument("-o", "--output-file", type=str, help="Full path of the output file")
-        parser.set_defaults(**config.DEFAULTS)
+        parser.set_defaults(**configuration.config.DEFAULTS)
 
     # recipe subcommand
     recipe = subparsers.add_parser("recipe", help="Run a recipe (default).")
@@ -152,13 +152,13 @@ def get_parser():
 
 
 def handle_config(remainder):
-    if config.edit is False:
-        print(config.dump())
+    if configuration.config.edit is False:
+        print(configuration.config.dump())
         return
 
     editor = None
-    if config.edit is not None:
-        editor = config.edit
+    if configuration.config.edit is not None:
+        editor = configuration.config.edit
     elif "VISUAL" in os.environ:
         editor = os.environ["VISUAL"]
     elif "EDITOR" in os.environ:
@@ -167,19 +167,19 @@ def handle_config(remainder):
         print("Unable to determine editor; please specify a binary")
 
     if editor:
-        subprocess.Popen([editor, config.path]).wait()
+        subprocess.Popen([editor, configuration.config.path]).wait()
 
 
 def handle_list(remainder):
-    key = "queries" if config.subcommand == "query" else "recipes"
+    key = "queries" if configuration.config.subcommand == "query" else "recipes"
     lines = []
-    for source in sources:
-        if config.verbose > 0:
-            attr = getattr(source, f"{config.subcommand}_dir")
+    for source in configuration.sources:
+        if configuration.config.verbose > 0:
+            attr = getattr(source, f"{configuration.config.subcommand}_dir")
             lines.append(f"\n{key.capitalize()} from {attr}:")
 
         items = sorted(getattr(source, key))
-        if config.verbose > 0:
+        if configuration.config.verbose > 0:
             items = ["  " + i for i in items]
         lines.extend(items)
 
@@ -187,25 +187,25 @@ def handle_list(remainder):
 
 
 def handle_recipe(remainder):
-    if config.recipe not in sources.recipes:
-        logger.error(f"recipe '{config.recipe}' not found!")
+    if configuration.config.recipe not in configuration.sources.recipes:
+        logger.error(f"recipe '{configuration.config.recipe}' not found!")
         return
 
-    data = run_recipe(config.recipe, remainder)
+    data = run_recipe(configuration.config.recipe, remainder)
 
-    if config.output_file:
-        print(data, file=open(config.output_file, "w"))
+    if configuration.config.output_file:
+        print(data, file=open(configuration.config.output_file, "w"))
     return data
 
 
 def handle_query(remainder):
-    if config.query not in sources.queries:
-        logger.error(f"query '{config.query}' not found!")
+    if configuration.config.query not in configuration.sources.queries:
+        logger.error(f"query '{configuration.config.query}' not found!")
         return
 
-    data, url = format_query(config.query, remainder)
-    if config.output_file:
-        print(data, file=open(config.output_file, "w"))
+    data, url = format_query(configuration.config.query, remainder)
+    if configuration.config.output_file:
+        print(data, file=open(configuration.config.output_file, "w"))
 
     if url:
         time.sleep(2)
@@ -229,7 +229,7 @@ def main(args=sys.argv[1:]):
     args, remainder = parser.parse_known_args()
     handler = args.func
     delattr(args, "func")
-    config.merge(vars(args))
+    configuration.config.merge(vars(args))
 
     setup_logging()
 
