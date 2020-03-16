@@ -173,7 +173,7 @@ def handle_config(remainder):
 def handle_list(remainder):
     key = "queries" if config.subcommand == "query" else "recipes"
     lines = []
-    for source in configuration.sources:
+    for source in sources:
         if config.verbose > 0:
             attr = getattr(source, f"{config.subcommand}_dir")
             lines.append(f"\n{key.capitalize()} from {attr}:")
@@ -187,7 +187,7 @@ def handle_list(remainder):
 
 
 def handle_recipe(remainder):
-    if config.recipe not in configuration.sources.recipes:
+    if config.recipe not in sources.recipes:
         logger.error(f"recipe '{config.recipe}' not found!")
         return
 
@@ -199,7 +199,7 @@ def handle_recipe(remainder):
 
 
 def handle_query(remainder):
-    if config.query not in configuration.sources.queries:
+    if config.query not in sources.queries:
         logger.error(f"query '{config.query}' not found!")
         return
 

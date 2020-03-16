@@ -8,7 +8,7 @@ from pathlib import Path
 from docutils.core import publish_parts
 from loguru import logger
 
-from adr import configuration
+from adr import sources
 from adr.context import RequestParser, extract_arguments, get_context_definitions
 from adr.errors import MissingDataError, RecipeException
 from adr.formatter import all_formatters
@@ -24,7 +24,7 @@ def get_module(recipe):
         recipe (str): name of recipe
     :return: module
     """
-    path = configuration.sources.get(recipe)
+    path = sources.get(recipe)
     return imp.load_module(f"recipes.{path.stem}", *imp.find_module(recipe, [path.parent]))
 
 

@@ -58,7 +58,7 @@ def load_query(name):
         dict query: dictionary representation of yaml query
         (exclude the context).
     """
-    with open(configuration.sources.get(name, query=True)) as fh:
+    with open(sources.get(name, query=True)) as fh:
         query = yaml.load(fh, Loader=yaml.SafeLoader)
         # Remove the context
         if "context" in query:
@@ -76,7 +76,7 @@ def load_query_context(name, add_contexts=[]):
         query_contexts (list): mixed array of strings (name of common contexts)
          and dictionaries (full definition of specific contexts)
     """
-    with open(configuration.sources.get(name, query=True)) as fh:
+    with open(sources.get(name, query=True)) as fh:
         query = yaml.load(fh, Loader=yaml.SafeLoader)
         # Extract query and context
         specific_contexts = query.pop("context") if "context" in query else {}
