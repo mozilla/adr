@@ -97,7 +97,7 @@ def run_recipe(recipe, args, from_cli=True):
         return ("The query has successfully returned but no data is available for"
                 "formatting. Does your run function have a return statement")
 
-    fmt = all_formatters[configuration.config.fmt]
+    fmt = all_formatters[config.fmt]
     return fmt(output)
 
 

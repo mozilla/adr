@@ -112,7 +112,7 @@ def run_query(name, args):
         query["limit"] = context["limit"]
     if "format" not in query and "format" in context:
         query["format"] = context["format"]
-    if configuration.config.debug:
+    if config.debug:
         query["meta"] = {"save": True}
 
     query = jsone.render(query, context)
@@ -120,15 +120,15 @@ def run_query(name, args):
 
     # translate "all" to a null value (which ActiveData will treat as all)
     query_str = query_str.replace('"all"', "null")
-    query_hash = configuration.config.cache._hash(query_str)
+    query_hash = config.cache._hash(query_str)
 
     key = f"run_query.{name}.{query_hash}"
-    if configuration.config.cache.has(key):
+    if config.cache.has(key):
         logger.debug(f"Loading results from cache")
-        return configuration.config.cache.get(key)
+        return config.cache.get(key)
 
     logger.trace(f"JSON representation of query:\n{query_str}")
-    result = query_activedata(query_str, configuration.config.url)
+    result = query_activedata(query_str, config.url)
 
     if result.get('url'):
         # We must wait for the content
@@ -162,7 +162,7 @@ def run_query(name, args):
         logger.debug("JSON Response:\n{response}", response=json.dumps(result, indent=2))
         raise MissingDataError("ActiveData didn't return any data.")
 
-    configuration.config.cache.put(key, result, configuration.config["cache"]["retention"])
+    config.cache.put(key, result, config["cache"]["retention"])
     return result
 
 
@@ -175,7 +175,7 @@ def format_query(query, remainder=[]):
     :param name query: name of the query file to be run.
     :param remainder: user contexts
     """
-    fmt = all_formatters[configuration.config.fmt]
+    fmt = all_formatters[config.fmt]
 
     query_context = load_query_context(query, ["format"])
     args = vars(RequestParser(query_context).parse_args(remainder))
@@ -189,9 +189,9 @@ def format_query(query, remainder=[]):
     debug_url = None
     if "saved_as" in result["meta"]:
         query_id = result["meta"]["saved_as"]
-        debug_url = configuration.config.debug_url.format(query_id)
+        debug_url = config.debug_url.format(query_id)
 
-    if configuration.config.fmt == "json":
+    if config.fmt == "json":
         return fmt(result), debug_url
 
     if "edges" in result:
