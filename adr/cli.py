@@ -6,11 +6,10 @@ import subprocess
 import sys
 import time
 import webbrowser
+from loguru import logger
 from pathlib import Path
 
-from loguru import logger
-
-from adr import configuration, config
+from adr import config, sources
 from adr.formatter import all_formatters
 from adr.query import format_query
 from adr.recipe import run_recipe

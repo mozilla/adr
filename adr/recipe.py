@@ -8,7 +8,7 @@ from pathlib import Path
 from docutils.core import publish_parts
 from loguru import logger
 
-from adr import sources
+from adr import sources, config
 from adr.context import RequestParser, extract_arguments, get_context_definitions
 from adr.errors import MissingDataError, RecipeException
 from adr.formatter import all_formatters

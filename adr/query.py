@@ -11,7 +11,7 @@ import jsone
 import yaml
 from loguru import logger
 
-from adr import configuration
+from adr import sources, config
 from adr.context import RequestParser, extract_context_names, get_context_definitions
 from adr.errors import MissingDataError
 from adr.formatter import all_formatters
