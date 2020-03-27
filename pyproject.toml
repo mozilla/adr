@@ -55,7 +55,7 @@ zstandard = { version = "^0.13.0", optional = true }
 [tool.poetry.dev-dependencies]
 flake8 = "^3.7.9"
 flake8-import-order = "^0.18.1"
-pytest = "^5.3.5"
+pytest = "^5.4.1"
 tox = "^3.14.3"
 sphinx = "^2.4"
 sphinx_rtd_theme = "^0.4.3"
