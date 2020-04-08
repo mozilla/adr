@@ -127,6 +127,25 @@ class Configuration(Mapping):
         """
         merge_to(other, self._config)
 
+    def update(self, config):
+        """
+        Update the configuration object with new parameters
+        :param config: dict of configuration
+        """
+        for k, v in config.items():
+            if v != None:
+                self._config[k] = v
+
+        self._config["sources"] = sorted(
+            map(os.path.expanduser, set(self._config["sources"]))
+        )
+
+        # Use the NullStore by default. This allows us to control whether
+        # caching is enabled or not at runtime.
+        self._config["cache"].setdefault("stores", {"null": {"driver": "null"}})
+        object.__setattr__(self, "cache", CacheManager(self._config["cache"]))
+        self.cache.extend("null", lambda driver: NullStore())
+
     def dump(self):
         return "\n".join(flatten(self._config))
 
