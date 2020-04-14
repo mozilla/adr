@@ -77,15 +77,19 @@ def test_merge_to():
 
 
 def test_custom_cache(tmpdir, create_config):
-    path = tmpdir.mkdir('cache')
-    config = create_config({'cache': {'stores': {'file': {'driver': 'renewing-file', 'path': path.strpath}}}})
-
-    def get_from_cache():
-        assert config.cache.get('foo') == 'bar'
+    path = tmpdir.mkdir("cache")
+    config = create_config(
+        {
+            "cache": {
+                "stores": {"file": {"driver": "renewing-file", "path": path.strpath}},
+                "default": "file"
+            }
+        }
+    )
 
     config.cache.put('foo', 'bar', 1)
     assert config.cache.get('foo') == 'bar'
 
     with concurrent.futures.ThreadPoolExecutor() as executor:
         f = executor.submit(lambda: config.cache.get('foo') == 'bar')
-        assert f.result() == True
+        assert f.result() is True
