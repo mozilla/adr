@@ -77,6 +77,8 @@ def test_merge_to():
 
 
 def test_custom_cache(tmpdir, create_config):
+    defaults = deepcopy(Configuration.DEFAULTS)
+
     path = tmpdir.mkdir("cache")
     config = create_config(
         {
@@ -93,3 +95,5 @@ def test_custom_cache(tmpdir, create_config):
     with concurrent.futures.ThreadPoolExecutor() as executor:
         f = executor.submit(lambda: config.cache.get('foo') == 'bar')
         assert f.result() is True
+
+    Configuration.DEFAULTS = defaults
