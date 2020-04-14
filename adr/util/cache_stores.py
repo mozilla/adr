@@ -91,3 +91,27 @@ class SeededFileStore(FileStore):
             self.seed()
 
         return super(SeededFileStore, self).get(key)
+
+
+class RenewingFileStore(FileStore):
+    def __init__(self, config, retention):
+        """A FileStore instance that renews items in the cache when they are
+        accessed again.
+        """
+        kwargs = {
+            'directory': config['path'],
+        }
+        if 'hash_type' in config:
+            kwargs['hash_type'] = config['hash_type']
+
+        self.retention = retention
+
+        super(RenewingFileStore, self).__init__(**kwargs)
+
+    def get(self, key):
+        value = super(RenewingFileStore, self).get(key)
+        if value is None:
+            return None
+
+        self.put(key, value, self.retention)
+        return value
