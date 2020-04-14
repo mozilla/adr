@@ -123,6 +123,9 @@ interval expires. This assumes the URL is automatically updated by some other pr
 As well as an ``archive_relpath`` config, which specifies the path to the cache data "within" the
 archive. Otherwise the cache data is assumed to be right at the root of the archive.
 
+``adr`` also provides a ``renewing-file`` store. This is the same as the "file system" store,
+except it renews items in the cache when they are retrieved.
+
 fmt
 ```
 

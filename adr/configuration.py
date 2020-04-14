@@ -8,7 +8,7 @@ from loguru import logger
 from tomlkit import parse
 
 import adr
-from adr.util.cache_stores import NullStore, SeededFileStore
+from adr.util.cache_stores import NullStore, RenewingFileStore, SeededFileStore
 
 
 def merge_to(source, dest):
@@ -91,6 +91,12 @@ class Configuration(Mapping):
         self.cache = CacheManager(self._config["cache"])
         self.cache.extend("null", lambda driver: NullStore())
         self.cache.extend("seeded-file", SeededFileStore)
+        self.cache.extend(
+            "renewing-file",
+            lambda config: RenewingFileStore(
+                config, self._config["cache"]["retention"]
+            ),
+        )
         self.locked = True
 
     def __len__(self):
