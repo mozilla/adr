@@ -59,6 +59,20 @@ def flatten(d, prefix=""):
     return sorted(result)
 
 
+class CustomCacheManager(CacheManager):
+    def __init__(self, adr_config):
+        super(CustomCacheManager, self).__init__(adr_config["cache"])
+
+        self.extend("null", lambda driver: NullStore())
+        self.extend("seeded-file", SeededFileStore)
+        self.extend(
+            "renewing-file",
+            lambda config: RenewingFileStore(
+                config, adr_config["cache"]["retention"]
+            ),
+        )
+
+
 class Configuration(Mapping):
     DEFAULT_CONFIG_PATH = Path(user_config_dir("adr")) / "config.toml"
     DEFAULTS = {
@@ -88,15 +102,7 @@ class Configuration(Mapping):
         # Use the NullStore by default. This allows us to control whether
         # caching is enabled or not at runtime.
         self._config["cache"].setdefault("stores", {"null": {"driver": "null"}})
-        self.cache = CacheManager(self._config["cache"])
-        self.cache.extend("null", lambda driver: NullStore())
-        self.cache.extend("seeded-file", SeededFileStore)
-        self.cache.extend(
-            "renewing-file",
-            lambda config: RenewingFileStore(
-                config, self._config["cache"]["retention"]
-            ),
-        )
+        self.cache = CustomCacheManager(self._config)
         self.locked = True
 
     def __len__(self):

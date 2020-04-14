@@ -1,3 +1,4 @@
+import concurrent.futures
 import os
 from copy import deepcopy
 from pathlib import Path
@@ -73,3 +74,18 @@ def test_merge_to():
         'd1': {'d2': {'foo': 'bar', 'baz': True}},
         'd3': {},
     }
+
+
+def test_custom_cache(tmpdir, create_config):
+    path = tmpdir.mkdir('cache')
+    config = create_config({'cache': {'stores': {'file': {'driver': 'renewing-file', 'path': path.strpath}}}})
+
+    def get_from_cache():
+        assert config.cache.get('foo') == 'bar'
+
+    config.cache.put('foo', 'bar', 1)
+    assert config.cache.get('foo') == 'bar'
+
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        f = executor.submit(lambda: config.cache.get('foo') == 'bar')
+        assert f.result() == True
