@@ -1,3 +1,4 @@
+import copy
 import os
 from collections import Mapping
 from pathlib import Path
@@ -89,7 +90,7 @@ class Configuration(Mapping):
     def __init__(self, path=None):
         self.path = Path(path or os.environ.get("ADR_CONFIG_PATH") or self.DEFAULT_CONFIG_PATH)
 
-        self._config = self.DEFAULTS.copy()
+        self._config = copy.deepcopy(self.DEFAULTS)
         if self.path.is_file():
             with open(self.path, "r") as fh:
                 content = fh.read()
