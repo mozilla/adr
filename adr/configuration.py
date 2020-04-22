@@ -9,7 +9,7 @@ from loguru import logger
 from tomlkit import parse
 
 import adr
-from adr.util.cache_stores import NullStore, RenewingFileStore, SeededFileStore
+from adr.util.cache_stores import NullStore, RenewingFileStore, S3Store, SeededFileStore
 
 
 def merge_to(source, dest):
@@ -68,8 +68,16 @@ class CustomCacheManager(CacheManager):
         self.extend("seeded-file", SeededFileStore)
         self.extend(
             "renewing-file",
-            lambda config: RenewingFileStore(
-                config, adr_config["cache"]["retention"]
+            lambda config: RenewingFileStore(config, adr_config["cache"]["retention"]),
+        )
+        self.extend(
+            "s3",
+            lambda config: S3Store(
+                config,
+                adr_config["cache"]["retention"],
+                os.environ["AWS_ACCESS_KEY_ID"],
+                os.environ["AWS_SECRET_ACCESS_KEY"],
+                os.environ["AWS_SESSION_TOKEN"],
             ),
         )
 
