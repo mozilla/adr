@@ -4,6 +4,9 @@ import tarfile
 import tempfile
 from distutils.dir_util import copy_tree
 
+import boto3
+import botocore
+from cachy.contracts.store import Store
 from cachy.stores import FileStore, NullStore  # noqa
 from loguru import logger
 
@@ -115,3 +118,51 @@ class RenewingFileStore(FileStore):
 
         self.put(key, value, self.retention)
         return value
+
+
+class S3Store(Store):
+    def __init__(
+        self, config, aws_access_key_id, aws_secret_access_key, aws_session_token,
+    ):
+        """A Store instance that stores items in S3.
+        """
+        self._bucket = config["bucket"]
+        self._prefix = config["prefix"]
+        self.client = boto3.client(
+            "s3",
+            aws_access_key_id=aws_access_key_id,
+            aws_secret_access_key=aws_secret_access_key,
+            aws_session_token=aws_session_token,
+        )
+
+    def _key(self, key):
+        return os.path.join(self._prefix, key)
+
+    def get(self, key):
+        # Copy the object onto itself to extend its expiration.
+        try:
+            head = self.client.head_object(Bucket=self._bucket, Key=self._key(key))
+
+            # Change its metadata, or Amazon will complain.
+            metadata = head["Metadata"]
+            metadata["id"] = "1" if "id" in metadata and metadata["id"] == "0" else "0"
+
+            self.client.copy_object(
+                Bucket=self._bucket,
+                CopySource={"Bucket": self._bucket, "Key": self._key(key)},
+                Key=self._key(key),
+                Metadata=metadata,
+                MetadataDirective="REPLACE",
+            )
+        except botocore.exceptions.ClientError as ex:
+            if ex.response["Error"]["Code"] == "404":
+                return None
+            raise
+
+        response = self.client.get_object(Bucket=self._bucket, Key=self._key(key))
+        return self.unserialize(response["Body"].read())
+
+    def put(self, key, value, minutes):
+        self.client.put_object(
+            Body=self.serialize(value), Bucket=self._bucket, Key=self._key(key)
+        )
