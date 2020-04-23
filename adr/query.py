@@ -87,7 +87,7 @@ def load_query_context(name, add_contexts=[]):
         return query_contexts
 
 
-def run_query(name, args):
+def run_query(name, args, cache=True):
     """Loads and runs the specified query, yielding the result.
 
     Given name of a query, this method will first read the query
@@ -99,11 +99,9 @@ def run_query(name, args):
     The actual call to the ActiveData endpoint is encapsulated
     inside the query_activedata method.
 
-    You can prevent caching of the results by passing `cache` as part
-    of the namespace args.
-
     :param str name: name of the query file to be loaded.
     :param Namespace args: namespace of ActiveData configs.
+    :param bool cache: Deafults to True. It controls if to cache the results.
     :return str: json-formatted string.
     """
     context = vars(args)
@@ -165,7 +163,7 @@ def run_query(name, args):
         logger.debug("JSON Response:\n{response}", response=json.dumps(result, indent=2))
         raise MissingDataError("ActiveData didn't return any data.")
 
-    if context.get("cache", True):
+    if cache:
         config.cache.put(key, result, config["cache"]["retention"])
     return result
 
