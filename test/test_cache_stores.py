@@ -1,10 +1,13 @@
+import copy
 import time
 from pathlib import Path
 
+import boto3
+import botocore
 import pytest
 import responses
 
-from adr.util.cache_stores import RenewingFileStore, SeededFileStore
+from adr.util.cache_stores import RenewingFileStore, S3Store, SeededFileStore
 
 here = Path(__file__).resolve().parent
 
@@ -95,3 +98,85 @@ def test_renewing_file_store(tmpdir, monkeypatch):
 
     # The item expired, so it won't be in the cache anymore.
     assert fs.get('foo') is None
+
+
+def test_s3_store(monkeypatch):
+    copy_calls = 0
+
+    def mock_client(t, aws_access_key_id, aws_secret_access_key, aws_session_token):
+        assert t == "s3"
+        assert aws_access_key_id == "aws_access_key_id"
+        assert aws_secret_access_key == "aws_secret_access_key"
+        assert aws_session_token == "aws_session_token"
+
+        class Response:
+            def __init__(self, data):
+                self.data = data
+
+            def read(self):
+                return self.data
+
+        class Client:
+            def __init__(self):
+                self.data = {}
+                self.metadata = {}
+
+            def head_object(self, Bucket, Key):
+                assert Bucket == "myBucket"
+                assert Key == "data/adr_cache/foo"
+                if (Bucket, Key) in self.data:
+                    if (Bucket, Key) in self.metadata:
+                        return {"Metadata": copy.deepcopy(self.metadata[(Bucket, Key)])}
+                    else:
+                        return {"Metadata": {}}
+                else:
+                    raise botocore.exceptions.ClientError(
+                        {"Error": {"Code": "404"}}, "head"
+                    )
+
+            def put_object(self, Body, Bucket, Key):
+                assert Bucket == "myBucket"
+                assert Key == "data/adr_cache/foo"
+                self.data[(Bucket, Key)] = Body
+
+            def copy_object(self, Bucket, CopySource, Key, Metadata, MetadataDirective):
+                assert Bucket == "myBucket"
+                assert Key == "data/adr_cache/foo"
+                assert CopySource["Bucket"] == "myBucket"
+                assert CopySource["Key"] == "data/adr_cache/foo"
+                if (Bucket, Key) in self.metadata:
+                    assert Metadata != self.metadata[(Bucket, Key)]
+                assert MetadataDirective == "REPLACE"
+                self.metadata[(Bucket, Key)] = copy.deepcopy(Metadata)
+
+                nonlocal copy_calls
+                copy_calls += 1
+
+            def get_object(self, Bucket, Key):
+                assert Bucket == "myBucket"
+                assert Key == "data/adr_cache/foo"
+                return {"Body": Response(self.data[(Bucket, Key)])}
+
+        return Client()
+
+    monkeypatch.setattr(boto3, "client", mock_client)
+
+    config = {
+        "bucket": "myBucket",
+        "prefix": "data/adr_cache/",
+    }
+    fs = S3Store(
+        config, "aws_access_key_id", "aws_secret_access_key", "aws_session_token"
+    )
+
+    # The cache is empty at first.
+    assert fs.get("foo") is None
+
+    # Store an element in the cache.
+    fs.put("foo", "bar", 1)
+    assert fs.get("foo") == "bar"
+    assert copy_calls == 1
+
+    # Ensure we update the metadata to renew the item expiration.
+    assert fs.get("foo") == "bar"
+    assert copy_calls == 2
