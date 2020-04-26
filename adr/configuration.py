@@ -74,7 +74,6 @@ class CustomCacheManager(CacheManager):
             "s3",
             lambda config: S3Store(
                 config,
-                adr_config["cache"]["retention"],
                 os.environ["AWS_ACCESS_KEY_ID"],
                 os.environ["AWS_SECRET_ACCESS_KEY"],
                 os.environ["AWS_SESSION_TOKEN"],
