@@ -76,15 +76,7 @@ class CustomCacheManager(CacheManager):
             "renewing-file",
             lambda config: RenewingFileStore(config, adr_config["cache"]["retention"]),
         )
-        self.extend(
-            "s3",
-            lambda config: S3Store(
-                config,
-                os.environ["AWS_ACCESS_KEY_ID"],
-                os.environ["AWS_SECRET_ACCESS_KEY"],
-                os.environ["AWS_SESSION_TOKEN"],
-            ),
-        )
+        self.extend("s3", S3Store)
 
         self.register_serializer("compressedpickle", CompressedPickleSerializer())
 

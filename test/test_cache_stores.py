@@ -7,6 +7,7 @@ import botocore
 import pytest
 import responses
 
+import adr
 from adr.util.cache_stores import RenewingFileStore, S3Store, SeededFileStore
 
 here = Path(__file__).resolve().parent
@@ -101,7 +102,11 @@ def test_renewing_file_store(tmpdir, monkeypatch):
 
 
 def test_s3_store(monkeypatch):
+    s3_data = {}
+    s3_metadata = {}
     copy_calls = 0
+    get_credentials_calls = 0
+    expire_token = False
 
     def mock_client(t, aws_access_key_id, aws_secret_access_key, aws_session_token):
         assert t == "s3"
@@ -117,16 +122,20 @@ def test_s3_store(monkeypatch):
                 return self.data
 
         class Client:
-            def __init__(self):
-                self.data = {}
-                self.metadata = {}
-
             def head_object(self, Bucket, Key):
+                nonlocal s3_data, s3_metadata, expire_token
                 assert Bucket == "myBucket"
                 assert Key == "data/adr_cache/foo"
-                if (Bucket, Key) in self.data:
-                    if (Bucket, Key) in self.metadata:
-                        return {"Metadata": copy.deepcopy(self.metadata[(Bucket, Key)])}
+
+                if expire_token:
+                    expire_token = False
+                    raise botocore.exceptions.ClientError(
+                        {"Error": {"Code": "ExpiredToken"}}, "HeadObject"
+                    )
+
+                if (Bucket, Key) in s3_data:
+                    if (Bucket, Key) in s3_metadata:
+                        return {"Metadata": copy.deepcopy(s3_metadata[(Bucket, Key)])}
                     else:
                         return {"Metadata": {}}
                 else:
@@ -135,48 +144,75 @@ def test_s3_store(monkeypatch):
                     )
 
             def put_object(self, Body, Bucket, Key):
+                nonlocal s3_data
                 assert Bucket == "myBucket"
                 assert Key == "data/adr_cache/foo"
-                self.data[(Bucket, Key)] = Body
+                s3_data[(Bucket, Key)] = Body
 
             def copy_object(self, Bucket, CopySource, Key, Metadata, MetadataDirective):
+                nonlocal s3_metadata, copy_calls
                 assert Bucket == "myBucket"
                 assert Key == "data/adr_cache/foo"
                 assert CopySource["Bucket"] == "myBucket"
                 assert CopySource["Key"] == "data/adr_cache/foo"
-                if (Bucket, Key) in self.metadata:
-                    assert Metadata != self.metadata[(Bucket, Key)]
+                if (Bucket, Key) in s3_metadata:
+                    assert Metadata != s3_metadata[(Bucket, Key)]
                 assert MetadataDirective == "REPLACE"
-                self.metadata[(Bucket, Key)] = copy.deepcopy(Metadata)
+                s3_metadata[(Bucket, Key)] = copy.deepcopy(Metadata)
 
-                nonlocal copy_calls
                 copy_calls += 1
 
             def get_object(self, Bucket, Key):
+                nonlocal s3_data
                 assert Bucket == "myBucket"
                 assert Key == "data/adr_cache/foo"
-                return {"Body": Response(self.data[(Bucket, Key)])}
+                return {"Body": Response(s3_data[(Bucket, Key)])}
 
         return Client()
 
     monkeypatch.setattr(boto3, "client", mock_client)
 
+    def mock_get_s3_credentials(bucket, prefix):
+        nonlocal get_credentials_calls
+        get_credentials_calls += 1
+
+        assert bucket == "myBucket"
+        assert prefix == "data/adr_cache/"
+        return {
+            "accessKeyId": "aws_access_key_id",
+            "secretAccessKey": "aws_secret_access_key",
+            "sessionToken": "aws_session_token",
+        }
+
+    monkeypatch.setattr(
+        adr.util.cache_stores, "get_s3_credentials", mock_get_s3_credentials
+    )
+
     config = {
         "bucket": "myBucket",
         "prefix": "data/adr_cache/",
     }
-    fs = S3Store(
-        config, "aws_access_key_id", "aws_secret_access_key", "aws_session_token"
-    )
+    fs = S3Store(config)
+
+    assert get_credentials_calls == 1
 
     # The cache is empty at first.
     assert fs.get("foo") is None
+    assert get_credentials_calls == 1
 
     # Store an element in the cache.
     fs.put("foo", "bar", 1)
     assert fs.get("foo") == "bar"
     assert copy_calls == 1
+    assert get_credentials_calls == 1
 
     # Ensure we update the metadata to renew the item expiration.
     assert fs.get("foo") == "bar"
     assert copy_calls == 2
+    assert get_credentials_calls == 1
+
+    # Re-request AWS credentials if they expired.
+    expire_token = True
+    assert fs.get("foo") == "bar"
+    assert copy_calls == 3
+    assert get_credentials_calls == 2

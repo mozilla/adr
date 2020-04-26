@@ -7,6 +7,7 @@ from distutils.dir_util import copy_tree
 
 import boto3
 import botocore
+import taskcluster
 from cachy.contracts.store import Store
 from cachy.serializers import Serializer
 from cachy.stores import FileStore, NullStore  # noqa
@@ -122,25 +123,62 @@ class RenewingFileStore(FileStore):
         return value
 
 
+def get_taskcluster_options():
+    """
+    Helper to get the Taskcluster setup options
+    according to current environment (local or Taskcluster)
+    """
+    options = taskcluster.optionsFromEnvironment()
+    proxy_url = os.environ.get("TASKCLUSTER_PROXY_URL")
+
+    if proxy_url is not None:
+        # Always use proxy url when available
+        options["rootUrl"] = proxy_url
+
+    if "rootUrl" not in options:
+        # Always have a value in root url
+        options["rootUrl"] = "https://community-tc.services.mozilla.com"
+
+    return options
+
+
+def get_s3_credentials(bucket, prefix):
+    auth = taskcluster.Auth(get_taskcluster_options())
+    response = auth.awsS3Credentials("read-write", bucket, prefix)
+    return response["credentials"]
+
+
 class S3Store(Store):
-    def __init__(
-        self, config, aws_access_key_id, aws_secret_access_key, aws_session_token,
-    ):
+    def __init__(self, config):
         """A Store instance that stores items in S3.
         """
         self._bucket = config["bucket"]
         self._prefix = config["prefix"]
+        self._create_client()
+
+    def _create_client(self):
+        credentials = get_s3_credentials(self._bucket, self._prefix)
         self.client = boto3.client(
             "s3",
-            aws_access_key_id=aws_access_key_id,
-            aws_secret_access_key=aws_secret_access_key,
-            aws_session_token=aws_session_token,
+            aws_access_key_id=credentials["accessKeyId"],
+            aws_secret_access_key=credentials["secretAccessKey"],
+            aws_session_token=credentials["sessionToken"],
         )
 
     def _key(self, key):
         return os.path.join(self._prefix, key)
 
-    def get(self, key):
+    def _retry_if_expired(self, op):
+        try:
+            return op()
+        except botocore.exceptions.ClientError as ex:
+            if ex.response["Error"]["Code"] != "ExpiredToken":
+                raise
+
+            self._create_client()
+            return op()
+
+    def _get(self, key):
         # Copy the object onto itself to extend its expiration.
         try:
             head = self.client.head_object(Bucket=self._bucket, Key=self._key(key))
@@ -164,10 +202,16 @@ class S3Store(Store):
         response = self.client.get_object(Bucket=self._bucket, Key=self._key(key))
         return self.unserialize(response["Body"].read())
 
-    def put(self, key, value, minutes):
+    def get(self, key):
+        return self._retry_if_expired(lambda: self._get(key))
+
+    def _put(self, key, value):
         self.client.put_object(
             Body=self.serialize(value), Bucket=self._bucket, Key=self._key(key)
         )
+
+    def put(self, key, value, minutes):
+        self._retry_if_expired(lambda: self._put(key, value))
 
 
 class CompressedPickleSerializer(Serializer):
