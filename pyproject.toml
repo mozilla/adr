@@ -65,6 +65,7 @@ responses = "^0.10.14"
 
 [tool.poetry.extras]
 app = ["flask"]
+zstandard = ["zstandard"]
 
 [build-system]
 requires = ["poetry>=1.0.2"]

@@ -1,4 +1,5 @@
 import os
+import pickle
 import shutil
 import tarfile
 import tempfile
@@ -7,6 +8,7 @@ from distutils.dir_util import copy_tree
 import boto3
 import botocore
 from cachy.contracts.store import Store
+from cachy.serializers import Serializer
 from cachy.stores import FileStore, NullStore  # noqa
 from loguru import logger
 
@@ -166,3 +168,16 @@ class S3Store(Store):
         self.client.put_object(
             Body=self.serialize(value), Bucket=self._bucket, Key=self._key(key)
         )
+
+
+class CompressedPickleSerializer(Serializer):
+    def __init__(self):
+        import zstandard
+        self.compressor = zstandard.ZstdCompressor(level=zstandard.MAX_COMPRESSION_LEVEL)
+        self.decompressor = zstandard.ZstdDecompressor()
+
+    def serialize(self, data):
+        return self.compressor.compress(pickle.dumps(data))
+
+    def unserialize(self, data):
+        return pickle.loads(self.decompressor.decompress(data))

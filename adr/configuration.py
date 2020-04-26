@@ -9,7 +9,13 @@ from loguru import logger
 from tomlkit import parse
 
 import adr
-from adr.util.cache_stores import NullStore, RenewingFileStore, S3Store, SeededFileStore
+from adr.util.cache_stores import (
+    CompressedPickleSerializer,
+    NullStore,
+    RenewingFileStore,
+    S3Store,
+    SeededFileStore,
+)
 
 
 def merge_to(source, dest):
@@ -79,6 +85,8 @@ class CustomCacheManager(CacheManager):
                 os.environ["AWS_SESSION_TOKEN"],
             ),
         )
+
+        self.register_serializer("compressedpickle", CompressedPickleSerializer())
 
 
 class Configuration(Mapping):

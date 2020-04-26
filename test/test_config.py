@@ -89,3 +89,19 @@ def test_custom_cache(tmpdir, create_config):
     with concurrent.futures.ThreadPoolExecutor() as executor:
         f = executor.submit(lambda: config.cache.get('foo') == 'bar')
         assert f.result() is True
+
+
+def test_custom_serializer(tmpdir, create_config):
+    path = tmpdir.mkdir("cache")
+    config = create_config(
+        {
+            "cache": {
+                "serializer": "compressedpickle",
+                "stores": {"file": {"driver": "file", "path": path.strpath}},
+                "default": "file"
+            }
+        }
+    )
+
+    config.cache.put('foo', set(['bar']), 1)
+    assert config.cache.get('foo') == set(['bar'])
