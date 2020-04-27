@@ -153,7 +153,7 @@ class Configuration(Mapping):
         :param config: dict of configuration
         """
         for k, v in config.items():
-            if v != None:
+            if v != None:  # noqa: E711
                 self._config[k] = v
 
         self._config["sources"] = sorted(
