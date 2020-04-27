@@ -8,6 +8,7 @@ from distutils.dir_util import copy_tree
 import boto3
 import botocore
 import taskcluster
+import zstandard
 from cachy.contracts.store import Store
 from cachy.serializers import Serializer
 from cachy.stores import FileStore, NullStore  # noqa
@@ -216,7 +217,6 @@ class S3Store(Store):
 
 class CompressedPickleSerializer(Serializer):
     def __init__(self):
-        import zstandard
         self.compressor = zstandard.ZstdCompressor(level=zstandard.MAX_COMPRESSION_LEVEL)
         self.decompressor = zstandard.ZstdDecompressor()
 
