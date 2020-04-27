@@ -68,6 +68,11 @@ def flatten(d, prefix=""):
 
 class CustomCacheManager(CacheManager):
     def __init__(self, adr_config):
+        # We can't pass the serializer config to the CacheManager constructor,
+        # as it tries to resolve it but we have not had a chance to register it
+        # yet.
+        serializer = adr_config["cache"].pop("serializer", "pickle")
+
         super(CustomCacheManager, self).__init__(adr_config["cache"])
 
         self.extend("null", lambda driver: NullStore())
@@ -79,6 +84,9 @@ class CustomCacheManager(CacheManager):
         self.extend("s3", S3Store)
 
         self.register_serializer("compressedpickle", CompressedPickleSerializer())
+
+        # Now we can manually set the serializer we wanted.
+        self._serializer = self._resolve_serializer(serializer)
 
 
 class Configuration(Mapping):
