@@ -78,7 +78,10 @@ class CustomCacheManager(CacheManager):
         )
         self.extend("s3", S3Store)
 
-        self.register_serializer("compressedpickle", CompressedPickleSerializer())
+        try:
+            self.register_serializer("compressedpickle", CompressedPickleSerializer())
+        except ModuleNotFoundError:
+            pass
 
 
 class Configuration(Mapping):
