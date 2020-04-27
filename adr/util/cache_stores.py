@@ -1,9 +1,16 @@
 import os
+import pickle
 import shutil
 import tarfile
 import tempfile
 from distutils.dir_util import copy_tree
 
+import boto3
+import botocore
+import taskcluster
+import zstandard
+from cachy.contracts.store import Store
+from cachy.serializers import Serializer
 from cachy.stores import FileStore, NullStore  # noqa
 from loguru import logger
 
@@ -91,3 +98,130 @@ class SeededFileStore(FileStore):
             self.seed()
 
         return super(SeededFileStore, self).get(key)
+
+
+class RenewingFileStore(FileStore):
+    def __init__(self, config, retention):
+        """A FileStore instance that renews items in the cache when they are
+        accessed again.
+        """
+        kwargs = {
+            'directory': config['path'],
+        }
+        if 'hash_type' in config:
+            kwargs['hash_type'] = config['hash_type']
+
+        self.retention = retention
+
+        super(RenewingFileStore, self).__init__(**kwargs)
+
+    def get(self, key):
+        value = super(RenewingFileStore, self).get(key)
+        if value is None:
+            return None
+
+        self.put(key, value, self.retention)
+        return value
+
+
+def get_taskcluster_options():
+    """
+    Helper to get the Taskcluster setup options
+    according to current environment (local or Taskcluster)
+    """
+    options = taskcluster.optionsFromEnvironment()
+    proxy_url = os.environ.get("TASKCLUSTER_PROXY_URL")
+
+    if proxy_url is not None:
+        # Always use proxy url when available
+        options["rootUrl"] = proxy_url
+
+    if "rootUrl" not in options:
+        # Always have a value in root url
+        options["rootUrl"] = "https://community-tc.services.mozilla.com"
+
+    return options
+
+
+def get_s3_credentials(bucket, prefix):
+    auth = taskcluster.Auth(get_taskcluster_options())
+    response = auth.awsS3Credentials("read-write", bucket, prefix)
+    return response["credentials"]
+
+
+class S3Store(Store):
+    def __init__(self, config):
+        """A Store instance that stores items in S3.
+        """
+        self._bucket = config["bucket"]
+        self._prefix = config["prefix"]
+        self._create_client()
+
+    def _create_client(self):
+        credentials = get_s3_credentials(self._bucket, self._prefix)
+        self.client = boto3.client(
+            "s3",
+            aws_access_key_id=credentials["accessKeyId"],
+            aws_secret_access_key=credentials["secretAccessKey"],
+            aws_session_token=credentials["sessionToken"],
+        )
+
+    def _key(self, key):
+        return os.path.join(self._prefix, key)
+
+    def _retry_if_expired(self, op):
+        try:
+            return op()
+        except botocore.exceptions.ClientError as ex:
+            if ex.response["Error"]["Code"] != "ExpiredToken":
+                raise
+
+            self._create_client()
+            return op()
+
+    def _get(self, key):
+        # Copy the object onto itself to extend its expiration.
+        try:
+            head = self.client.head_object(Bucket=self._bucket, Key=self._key(key))
+
+            # Change its metadata, or Amazon will complain.
+            metadata = head["Metadata"]
+            metadata["id"] = "1" if "id" in metadata and metadata["id"] == "0" else "0"
+
+            self.client.copy_object(
+                Bucket=self._bucket,
+                CopySource={"Bucket": self._bucket, "Key": self._key(key)},
+                Key=self._key(key),
+                Metadata=metadata,
+                MetadataDirective="REPLACE",
+            )
+        except botocore.exceptions.ClientError as ex:
+            if ex.response["Error"]["Code"] == "404":
+                return None
+            raise
+
+        response = self.client.get_object(Bucket=self._bucket, Key=self._key(key))
+        return self.unserialize(response["Body"].read())
+
+    def get(self, key):
+        return self._retry_if_expired(lambda: self._get(key))
+
+    def _put(self, key, value):
+        self.client.put_object(
+            Body=self.serialize(value), Bucket=self._bucket, Key=self._key(key)
+        )
+
+    def put(self, key, value, minutes):
+        self._retry_if_expired(lambda: self._put(key, value))
+
+
+class CompressedPickleSerializer(Serializer):
+    def __init__(self):
+        self.compressor = zstandard.ZstdCompressor(level=zstandard.MAX_COMPRESSION_LEVEL)
+        self.decompressor = zstandard.ZstdDecompressor()
+
+    def serialize(self, data):
+        return self.compressor.compress(pickle.dumps(data))
+
+    def unserialize(self, data):
+        return pickle.loads(self.decompressor.decompress(data))

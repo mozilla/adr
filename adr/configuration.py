@@ -1,3 +1,4 @@
+import copy
 import os
 from collections import Mapping
 from pathlib import Path
@@ -8,7 +9,13 @@ from loguru import logger
 from tomlkit import parse
 
 import adr
-from adr.util.cache_stores import NullStore, SeededFileStore
+from adr.util.cache_stores import (
+    CompressedPickleSerializer,
+    NullStore,
+    RenewingFileStore,
+    S3Store,
+    SeededFileStore,
+)
 
 
 def merge_to(source, dest):
@@ -59,6 +66,21 @@ def flatten(d, prefix=""):
     return sorted(result)
 
 
+class CustomCacheManager(CacheManager):
+    def __init__(self, adr_config):
+        super(CustomCacheManager, self).__init__(adr_config["cache"])
+
+        self.extend("null", lambda driver: NullStore())
+        self.extend("seeded-file", SeededFileStore)
+        self.extend(
+            "renewing-file",
+            lambda config: RenewingFileStore(config, adr_config["cache"]["retention"]),
+        )
+        self.extend("s3", S3Store)
+
+        self.register_serializer("compressedpickle", CompressedPickleSerializer())
+
+
 class Configuration(Mapping):
     DEFAULT_CONFIG_PATH = Path(user_config_dir("adr")) / "config.toml"
     DEFAULTS = {
@@ -75,7 +97,7 @@ class Configuration(Mapping):
     def __init__(self, path=None):
         self.path = Path(path or os.environ.get("ADR_CONFIG_PATH") or self.DEFAULT_CONFIG_PATH)
 
-        self._config = self.DEFAULTS.copy()
+        self._config = copy.deepcopy(self.DEFAULTS)
         if self.path.is_file():
             with open(self.path, "r") as fh:
                 content = fh.read()
@@ -88,9 +110,7 @@ class Configuration(Mapping):
         # Use the NullStore by default. This allows us to control whether
         # caching is enabled or not at runtime.
         self._config["cache"].setdefault("stores", {"null": {"driver": "null"}})
-        self.cache = CacheManager(self._config["cache"])
-        self.cache.extend("null", lambda driver: NullStore())
-        self.cache.extend("seeded-file", SeededFileStore)
+        self.cache = CustomCacheManager(self._config)
         self.locked = True
 
     def __len__(self):

@@ -123,6 +123,22 @@ interval expires. This assumes the URL is automatically updated by some other pr
 As well as an ``archive_relpath`` config, which specifies the path to the cache data "within" the
 archive. Otherwise the cache data is assumed to be right at the root of the archive.
 
+``adr`` also provides a ``renewing-file`` store. This is the same as the "file system" store,
+except it renews items in the cache when they are retrieved.
+
+``adr`` also provides a ``s3`` store, which allows caching items in a S3 bucket. With this store,
+items are renewed on access like ``renewing-file``. It's suggested to use a S3 Object Expiration
+policy to clean up items which are not accessed for a long time. Example configuration:
+
+.. code-block:: toml
+
+    [adr.cache.stores]
+    s3 = {
+        driver = "s3",
+        bucket = "myBucket",
+        prefix = "data/adr_cache/"
+    }
+
 fmt
 ```
 
