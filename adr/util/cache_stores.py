@@ -172,10 +172,7 @@ class S3Store(Store):
     def _retry_if_expired(self, op):
         try:
             return op()
-        except botocore.exceptions.ClientError as ex:
-            if ex.response["Error"]["Code"] != "ExpiredToken":
-                raise
-
+        except botocore.exceptions.ClientError:
             self._create_client()
             return op()
 
