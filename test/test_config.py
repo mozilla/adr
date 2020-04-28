@@ -110,3 +110,7 @@ def test_custom_serializer(tmpdir, create_config):
 
     config.cache.put('foo', set(['bar']), 1)
     assert config.cache.get('foo') == set(['bar'])
+
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        f = executor.submit(lambda: config.cache.get('foo') == set(['bar']))
+        assert f.result() is True

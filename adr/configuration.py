@@ -88,6 +88,10 @@ class CustomCacheManager(CacheManager):
         # Now we can manually set the serializer we wanted.
         self._serializer = self._resolve_serializer(serializer)
 
+        # Now we can put the serializer back in the config, or the next time we
+        # instantiate the cache manager we will not use the right serializer.
+        adr_config["cache"]["serializer"] = serializer
+
 
 class Configuration(Mapping):
     DEFAULT_CONFIG_PATH = Path(user_config_dir("adr")) / "config.toml"
