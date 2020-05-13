@@ -17,14 +17,15 @@ class memoize(dict):
             self[args] = self.func(*args)
         return self[args]
 
-    def method_call(self, instance, *args):
+    def method_call(self, instance, *args, **kwargs):
         name = "_%s" % self.func.__name__
         if not hasattr(instance, name):
             setattr(instance, name, {})
         cache = getattr(instance, name)
-        if args not in cache:
-            cache[args] = self.func(instance, *args)
-        return cache[args]
+        kwargs_tuple = tuple(kwargs.items())
+        if (args, kwargs_tuple) not in cache:
+            cache[(args, kwargs_tuple)] = self.func(instance, *args, **kwargs)
+        return cache[(args, kwargs_tuple)]
 
     def __get__(self, instance, cls):
         return functools.update_wrapper(functools.partial(self.method_call, instance), self.func)
