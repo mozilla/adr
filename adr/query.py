@@ -125,7 +125,7 @@ def run_query(name, args, cache=True):
 
     key = f"run_query.{name}.{query_hash}"
     if config.cache.has(key):
-        logger.debug(f"Loading results from cache")
+        logger.debug("Loading results from cache")
         return config.cache.get(key)
 
     logger.trace(f"JSON representation of query:\n{query_str}")
