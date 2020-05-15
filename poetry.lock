@@ -731,7 +731,7 @@ description = "Python client for Taskcluster"
 name = "taskcluster"
 optional = false
 python-versions = "*"
-version = "29.5.2"
+version = "29.6.0"
 
 [package.dependencies]
 mohawk = ">=0.3.4"
@@ -926,6 +926,7 @@ babel = [
     {file = "Babel-2.8.0.tar.gz", hash = "sha256:1aac2ae2d0d8ea368fa90906567f5c08463d98ade155c0c4bfedd6a0f7160e38"},
 ]
 boto3 = [
+    {file = "boto3-1.13.9-py2.py3-none-any.whl", hash = "sha256:ab39015dd1a66fb9e549fd4a1a7903fad2cef83a1e7fe0711bbc7c93802bc1b3"},
     {file = "boto3-1.13.9.tar.gz", hash = "sha256:06dd5d0f2ed3570f60eab04b9f04d229ff980b55102447481992756efe268639"},
 ]
 botocore = [
@@ -1200,9 +1201,9 @@ sphinxcontrib-serializinghtml = [
     {file = "sphinxcontrib_serializinghtml-1.1.4-py2.py3-none-any.whl", hash = "sha256:f242a81d423f59617a8e5cf16f5d4d74e28ee9a66f9e5b637a18082991db5a9a"},
 ]
 taskcluster = [
-    {file = "taskcluster-29.5.2-py2-none-any.whl", hash = "sha256:7d7862de12650fd292c174946fb6ca0e45e6b01557da31bfdbd6371be3b90b77"},
-    {file = "taskcluster-29.5.2-py3-none-any.whl", hash = "sha256:e298b20a72e16af3a9b887d085165816eae2de1d1af81bd7c47afacdb26fe0d9"},
-    {file = "taskcluster-29.5.2.tar.gz", hash = "sha256:d645745ad93426b41ee6b80f9c3e8ad0cd8f7ca254c10b0e06f69922754f42b5"},
+    {file = "taskcluster-29.6.0-py2-none-any.whl", hash = "sha256:7d860fba5f528a60560b4f569ab62926fc56d3677d4806acebec0303d85e148f"},
+    {file = "taskcluster-29.6.0-py3-none-any.whl", hash = "sha256:a6a3ec1e50cb6f245f0238df4e5ff858404ac2e5fbb96ef1bf9f0f6be9720183"},
+    {file = "taskcluster-29.6.0.tar.gz", hash = "sha256:84285a53428f010b8c9da035bff893103f20e33b8375ce21e4da85574afd4512"},
 ]
 taskcluster-urls = [
     {file = "taskcluster-urls-12.1.0.tar.gz", hash = "sha256:1dc740c32c7beb31e11ed7ccf9da2d47a504acdb3170c8900649433b0fd16fb2"},
