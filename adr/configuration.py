@@ -73,6 +73,8 @@ class ADRCacheManager(CacheManager):
         # yet.
         serializer = cache_config.pop("serializer", "pickle")
 
+        cache_config.setdefault("stores", {"null": {"driver": "null"}})
+
         super(ADRCacheManager, self).__init__(cache_config)
 
         self.extend("null", lambda driver: NullStore())

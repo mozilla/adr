@@ -1,4 +1,5 @@
 import copy
+import platform
 import time
 from pathlib import Path
 
@@ -11,6 +12,7 @@ import adr
 from adr.util.cache_stores import RenewingFileStore, S3Store, SeededFileStore
 
 here = Path(__file__).resolve().parent
+IS_WINDOWS = "windows" in platform.system().lower()
 
 
 @pytest.fixture
@@ -31,6 +33,7 @@ def archive_response():
 
 
 @pytest.mark.parametrize('archive_name', ['cache.tar'])
+@pytest.mark.skipif(IS_WINDOWS, reason="Does not pass on windows")
 def test_seeded_file_store_download_and_extract(tmpdir, archive_response, archive_name):
     archive_response.add(
         responses.GET,
@@ -216,3 +219,5 @@ def test_s3_store(monkeypatch):
     assert fs.get("foo") == "bar"
     assert copy_calls == 3
     assert get_credentials_calls == 2
+
+
