@@ -66,7 +66,7 @@ def flatten(d, prefix=""):
     return sorted(result)
 
 
-class ADRCacheManager(CacheManager):
+class CustomCacheManager(CacheManager):
     def __init__(self, cache_config):
         # We can't pass the serializer config to the CacheManager constructor,
         # as it tries to resolve it but we have not had a chance to register it
@@ -75,7 +75,7 @@ class ADRCacheManager(CacheManager):
 
         cache_config.setdefault("stores", {"null": {"driver": "null"}})
 
-        super(ADRCacheManager, self).__init__(cache_config)
+        super(CustomCacheManager, self).__init__(cache_config)
 
         self.extend("null", lambda driver: NullStore())
         self.extend("seeded-file", SeededFileStore)
@@ -109,9 +109,7 @@ class Configuration(Mapping):
     locked = False
 
     def __init__(self, path=None):
-        self.path = Path(
-            path or os.environ.get("ADR_CONFIG_PATH") or self.DEFAULT_CONFIG_PATH
-        )
+        self.path = Path(path or os.environ.get("ADR_CONFIG_PATH") or self.DEFAULT_CONFIG_PATH)
 
         self._config = copy.deepcopy(self.DEFAULTS)
         if self.path.is_file():
@@ -121,11 +119,9 @@ class Configuration(Mapping):
         else:
             logger.warning(f"Configuration path {self.path} is not a file.")
 
-        self._config["sources"] = sorted(
-            map(os.path.expanduser, set(self._config["sources"]))
-        )
+        self._config["sources"] = sorted(map(os.path.expanduser, set(self._config["sources"])))
 
-        self.cache = ADRCacheManager(self._config['cache'])
+        self.cache = CustomCacheManager(self._config['cache'])
         self.locked = True
 
     def __len__(self):
@@ -174,7 +170,7 @@ class Configuration(Mapping):
         self._config["sources"] = sorted(
             map(os.path.expanduser, set(self._config["sources"]))
         )
-        object.__setattr__(self, "cache", ADRCacheManager(self._config['cache']))
+        object.__setattr__(self, "cache", CustomCacheManager(self._config['cache']))
 
     def dump(self):
         return "\n".join(flatten(self._config))

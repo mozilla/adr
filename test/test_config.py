@@ -9,7 +9,7 @@ from tomlkit import dumps
 
 from adr.configuration import (
     Configuration,
-    ADRCacheManager,
+    CustomCacheManager,
     merge_to,
 )
 
@@ -95,7 +95,7 @@ def test_custom_cache(tmpdir, create_config):
 def test_custom_serializer(tmpdir, create_config):
     # "Deregister" our custom serializer (it is already registered at this point
     # because we load the adr config module when this test file is loaded).
-    del ADRCacheManager._serializers["compressedpickle"]
+    del CustomCacheManager._serializers["compressedpickle"]
 
     path = tmpdir.mkdir("cache")
     config = create_config(
