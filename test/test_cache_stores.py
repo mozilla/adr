@@ -219,5 +219,3 @@ def test_s3_store(monkeypatch):
     assert fs.get("foo") == "bar"
     assert copy_calls == 3
     assert get_credentials_calls == 2
-
-
