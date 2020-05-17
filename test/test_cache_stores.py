@@ -106,6 +106,7 @@ def test_s3_store(monkeypatch):
     s3_metadata = {}
     copy_calls = 0
     get_credentials_calls = 0
+    delete_calls = 0
     expire_token = False
 
     def mock_client(t, aws_access_key_id, aws_secret_access_key, aws_session_token):
@@ -168,6 +169,18 @@ def test_s3_store(monkeypatch):
                 assert Key == "data/adr_cache/foo"
                 return {"Body": Response(s3_data[(Bucket, Key)])}
 
+            def delete_object(self, Bucket, Key):
+                nonlocal delete_calls
+                assert Bucket == "myBucket"
+                assert Key == "data/adr_cache/foo"
+
+                del s3_data[(Bucket, Key)]
+                del s3_metadata[(Bucket, Key)]
+
+                delete_calls += 1
+
+                return {}
+
         return Client()
 
     monkeypatch.setattr(boto3, "client", mock_client)
@@ -216,3 +229,8 @@ def test_s3_store(monkeypatch):
     assert fs.get("foo") == "bar"
     assert copy_calls == 3
     assert get_credentials_calls == 2
+
+    # Delete object if the stored data is broken.
+    s3_data[("myBucket", "data/adr_cache/foo")] = "goo"
+    assert fs.get("foo") is None
+    assert delete_calls == 1

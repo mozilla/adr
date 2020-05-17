@@ -198,7 +198,13 @@ class S3Store(Store):
             raise
 
         response = self.client.get_object(Bucket=self._bucket, Key=self._key(key))
-        return self.unserialize(response["Body"].read())
+        data = response["Body"].read()
+        try:
+            return self.unserialize(data)
+        except Exception:
+            # The object is broken, let's delete it.
+            self.client.delete_object(Bucket=self._bucket, Key=self._key(key))
+            return None
 
     def get(self, key):
         return self._retry_if_expired(lambda: self._get(key))
