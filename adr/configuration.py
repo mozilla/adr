@@ -68,14 +68,16 @@ def flatten(d, prefix=""):
 
 class CustomCacheManager(CacheManager):
     def __init__(self, cache_config):
-        # We can't pass the serializer config to the CacheManager constructor,
-        # as it tries to resolve it but we have not had a chance to register it
-        # yet.
-        serializer = cache_config.pop("serializer", "pickle")
-
-        cache_config.setdefault("stores", {"null": {"driver": "null"}})
-
-        super(CustomCacheManager, self).__init__(cache_config)
+        super_config = {
+            k: v
+            for k, v in cache_config.items()
+            # We can't pass the serializer config to the CacheManager constructor,
+            # as it tries to resolve it but we have not had a chance to register it
+            # yet.
+            if k != "serializer"
+        }
+        super_config.setdefault("stores", {"null": {"driver": "null"}})
+        super(CustomCacheManager, self).__init__(super_config)
 
         self.extend("null", lambda driver: NullStore())
         self.extend("seeded-file", SeededFileStore)
@@ -88,11 +90,7 @@ class CustomCacheManager(CacheManager):
         self.register_serializer("compressedpickle", CompressedPickleSerializer())
 
         # Now we can manually set the serializer we wanted.
-        self._serializer = self._resolve_serializer(serializer)
-
-        # Now we can put the serializer back in the config, or the next time we
-        # instantiate the cache manager we will not use the right serializer.
-        cache_config["serializer"] = serializer
+        self._serializer = self._resolve_serializer(cache_config.get("serializer", "pickle"))
 
 
 class Configuration(Mapping):
