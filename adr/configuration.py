@@ -72,6 +72,8 @@ class CustomCacheManager(CacheManager):
             k: v
             for k, v in cache_config.items()
             # We can't pass the serializer config to the CacheManager constructor,
+            # as it tries to resolve it but we have not had a chance to register it
+            # yet.
             if k != "serializer"
         }
         super_config.setdefault("stores", {"null": {"driver": "null"}})
