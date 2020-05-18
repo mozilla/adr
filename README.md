@@ -83,12 +83,35 @@ Alternatively activate the `poetry` shell ahead of time:
     # run tests
     $ tox
 
-# Pip Install
+# Windows Install and Development
 
-If for any reason Poetry is not fully supported, you can generate a requirements file for pip install: 
+If you wish to run tests in your IDE, or if you find [Poetry does not work](https://github.com/python-poetry/poetry/issues/2244), you can export-and-install manually:
 
-    poetry export -f requirements.txt > requirements.txt
-    c:\Python36\python -m pip install -r requirements.txt
+
+We will be locking the version numbers of the project requirements, so it is best to setup a virtual environment:
+
+    c:\Python37\python.exe -m venv venv
+    venv\Scripts\activate
+
+Poetry can export the requirements
+
+    poetry export -f requirements.txt > requirements.in   
+
+...unfortunately, the exported requirements includes version conflicts, preventing install.  We use `pip-tools` to fix that:   
+
+    python -m pip install pip-tools
+    pip-compile --upgrade --generate-hashes --output-file requirements.txt requirements.in
+    pip install -r requirements.txt
+    
+A few more libraries are required to run the tests
+
+    pip install wheel
+    pip install responses
+    pip install flask
+    
+Finally, we can run the tests.
+
+    pytest -v test
 
 
 [0]: https://active-data-recipes.readthedocs.io

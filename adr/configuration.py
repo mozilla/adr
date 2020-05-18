@@ -67,19 +67,21 @@ def flatten(d, prefix=""):
 
 
 class CustomCacheManager(CacheManager):
-    def __init__(self, adr_config):
+    def __init__(self, cache_config):
         # We can't pass the serializer config to the CacheManager constructor,
         # as it tries to resolve it but we have not had a chance to register it
         # yet.
-        serializer = adr_config["cache"].pop("serializer", "pickle")
+        serializer = cache_config.pop("serializer", "pickle")
 
-        super(CustomCacheManager, self).__init__(adr_config["cache"])
+        cache_config.setdefault("stores", {"null": {"driver": "null"}})
+
+        super(CustomCacheManager, self).__init__(cache_config)
 
         self.extend("null", lambda driver: NullStore())
         self.extend("seeded-file", SeededFileStore)
         self.extend(
             "renewing-file",
-            lambda config: RenewingFileStore(config, adr_config["cache"]["retention"]),
+            lambda config: RenewingFileStore(config, cache_config["retention"]),
         )
         self.extend("s3", S3Store)
 
@@ -90,7 +92,7 @@ class CustomCacheManager(CacheManager):
 
         # Now we can put the serializer back in the config, or the next time we
         # instantiate the cache manager we will not use the right serializer.
-        adr_config["cache"]["serializer"] = serializer
+        cache_config["serializer"] = serializer
 
 
 class Configuration(Mapping):
@@ -119,10 +121,7 @@ class Configuration(Mapping):
 
         self._config["sources"] = sorted(map(os.path.expanduser, set(self._config["sources"])))
 
-        # Use the NullStore by default. This allows us to control whether
-        # caching is enabled or not at runtime.
-        self._config["cache"].setdefault("stores", {"null": {"driver": "null"}})
-        self.cache = CustomCacheManager(self._config)
+        self.cache = CustomCacheManager(self._config['cache'])
         self.locked = True
 
     def __len__(self):
@@ -171,12 +170,7 @@ class Configuration(Mapping):
         self._config["sources"] = sorted(
             map(os.path.expanduser, set(self._config["sources"]))
         )
-
-        # Use the NullStore by default. This allows us to control whether
-        # caching is enabled or not at runtime.
-        self._config["cache"].setdefault("stores", {"null": {"driver": "null"}})
-        object.__setattr__(self, "cache", CacheManager(self._config["cache"]))
-        self.cache.extend("null", lambda driver: NullStore())
+        object.__setattr__(self, "cache", CustomCacheManager(self._config['cache']))
 
     def dump(self):
         return "\n".join(flatten(self._config))
