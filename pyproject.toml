@@ -61,7 +61,7 @@ pytest = "^5.4.2"
 tox = "^3.15.1"
 sphinx = "^3.0"
 sphinx_rtd_theme = "^0.4.3"
-codespell = "^1.16"
+codespell = "^1.17"
 responses = "^0.10.14"
 
 [tool.poetry.extras]

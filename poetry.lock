@@ -135,7 +135,7 @@ description = "Codespell"
 name = "codespell"
 optional = false
 python-versions = "*"
-version = "1.16.0"
+version = "1.17.1"
 
 [[package]]
 category = "main"
@@ -897,7 +897,7 @@ version = "0.13.0"
 app = ["flask"]
 
 [metadata]
-content-hash = "b46bcf7f29b7bad1e7bd5a59bda6f3b887f143849398ca5c03dfd750d01f08ea"
+content-hash = "032b0c57919cdc6c02ee494614a00eb934c57adf6a3ab442c10f338095cc413f"
 python-versions = "^3.6"
 
 [metadata.files]
@@ -950,8 +950,8 @@ click = [
     {file = "click-7.1.2.tar.gz", hash = "sha256:d2b5255c7c6349bc1bd1e59e08cd12acbbd63ce649f2588755783aa94dfb6b1a"},
 ]
 codespell = [
-    {file = "codespell-1.16.0-py3-none-any.whl", hash = "sha256:a81780122f955002d032a9a9c55e2305c6f252a530d8682ed5c3d0580f93d9b8"},
-    {file = "codespell-1.16.0.tar.gz", hash = "sha256:bf3b7c83327aefd26fe718527baa9bd61016e86db91a8123c0ef9c150fa02de9"},
+    {file = "codespell-1.17.1-py3-none-any.whl", hash = "sha256:0ba864d8b25c4dc1b2a3fb067377ec11edb84c1a967a33d9e9cac73f386f3a0a"},
+    {file = "codespell-1.17.1.tar.gz", hash = "sha256:25a2ecd86b9cdc111dc40a30d0ed28c578e13a0ce158d1c383f9d47811bfcd23"},
 ]
 colorama = [
     {file = "colorama-0.4.3-py2.py3-none-any.whl", hash = "sha256:7d73d2a99753107a36ac6b455ee49046802e59d9d076ef8e47b61499fa29afff"},
