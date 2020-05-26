@@ -124,9 +124,10 @@ def run_query(name, args, cache=True):
     query_hash = config.cache._hash(query_str)
 
     key = f"run_query.{name}.{query_hash}"
-    result = config.cache.get(key)
-    if result is not None:
-        return result
+    if cache:
+        result = config.cache.get(key)
+        if result is not None:
+            return result
 
     logger.trace(f"JSON representation of query:\n{query_str}")
     result = query_activedata(query_str, config.url)
