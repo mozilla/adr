@@ -237,3 +237,14 @@ def test_s3_store(monkeypatch):
     s3_data[("myBucket", "data/adr_cache/foo")] = "goo"
     assert fs.get("foo") is None
     assert delete_calls == 1
+
+    # Store an element in the cache.
+    fs.put("foo", "bar", 1)
+    assert fs.get("foo") == "bar"
+    assert copy_calls == 5
+    assert get_credentials_calls == 2
+
+    # Forget an element.
+    fs.forget("foo")
+    assert delete_calls == 2
+    assert fs.get("foo") is None
