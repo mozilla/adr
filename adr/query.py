@@ -87,7 +87,7 @@ def load_query_context(name, add_contexts=[]):
         return query_contexts
 
 
-def run_query(name, args, cache=True):
+def run_query(name, args, cache=True, regenerate=False):
     """Loads and runs the specified query, yielding the result.
 
     Given name of a query, this method will first read the query
@@ -102,6 +102,8 @@ def run_query(name, args, cache=True):
     :param str name: name of the query file to be loaded.
     :param Namespace args: namespace of ActiveData configs.
     :param bool cache: Defaults to True. It controls if to cache the results.
+    :param bool regenerate: Defaults to False. It controls whether to bypass
+                            the cache and regenerate results.
     :return str: json-formatted string.
     """
     context = vars(args)
@@ -124,7 +126,7 @@ def run_query(name, args, cache=True):
     query_hash = config.cache._hash(query_str)
 
     key = f"run_query.{name}.{query_hash}"
-    if cache:
+    if cache and not regenerate:
         result = config.cache.get(key)
         if result is not None:
             return result
