@@ -101,7 +101,7 @@ def run_query(name, args, cache=True):
 
     :param str name: name of the query file to be loaded.
     :param Namespace args: namespace of ActiveData configs.
-    :param bool cache: Deafults to True. It controls if to cache the results.
+    :param bool cache: Defaults to True. It controls if to cache the results.
     :return str: json-formatted string.
     """
     context = vars(args)
