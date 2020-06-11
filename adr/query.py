@@ -2,6 +2,7 @@ from __future__ import absolute_import, print_function
 
 import datetime
 import json
+import multiprocessing
 import os
 import time
 from argparse import Namespace
@@ -24,6 +25,9 @@ def format_date(timestamp, interval="day"):
     return datetime.datetime.fromtimestamp(timestamp).strftime("%Y-%m-%d")
 
 
+activedata_lock = multiprocessing.Lock()
+
+
 def query_activedata(query, url):
     """Runs the provided query against the ActiveData endpoint.
 
@@ -31,18 +35,22 @@ def query_activedata(query, url):
     :param str url: url to run query
     :returns str: json-formatted string.
     """
-    start_time = time.time()
-    response = requests_retry_session().post(url, data=query, stream=True)
-    logger.debug("Query execution time: " + "{:.3f} ms".format((time.time() - start_time) * 1000.0))
+    # Ensure we only run one ActiveData query at a time, to avoid overwhelming it.
+    with activedata_lock:
+        start_time = time.time()
+        response = requests_retry_session().post(url, data=query, stream=True)
+        logger.debug(
+            "Query execution time {:.3f} ms".format((time.time() - start_time) * 1000.0)
+        )
 
-    if response.status_code != 200:
-        try:
-            print(json.dumps(response.json(), indent=2))
-        except ValueError:
-            print(response.text)
-        response.raise_for_status()
+        if response.status_code != 200:
+            try:
+                print(json.dumps(response.json(), indent=2))
+            except ValueError:
+                print(response.text)
+            response.raise_for_status()
 
-    return response.json()
+        return response.json()
 
 
 def load_query(name):
