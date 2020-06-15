@@ -47,7 +47,7 @@ cachy = ">=0.2,<0.4"
 loguru = ">=0.2.5,<0.6.0"
 boto3 = "^1.12.43"
 taskcluster = ">=29.0.1,<31.0.0"
-zstandard = "^0.13.0"
+zstandard = ">=0.13,<0.15"
 
 # Optional dependencies
 flask = { version = "^1.0.2", optional = true }
