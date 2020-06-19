@@ -96,7 +96,8 @@ def test_threaded_query():
         payload = json.loads(request.body)
         many_queries = payload.get("tuple")
         if many_queries is None:
-            # THE FIRST QUERY WILL TAKE A WHILE, SO THE OTHER THREADS WILL FILL activedata_work_items
+            # THE FIRST QUERY WILL TAKE A WHILE, THIS WILL
+            # GIVE TIME FOR THE OTHER THREADS WILL FILL activedata_work_items
             sleep(1)
             return 200, {}, json.dumps("x")
         assert len(many_queries) == 3
