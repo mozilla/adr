@@ -2,11 +2,12 @@ from __future__ import absolute_import, print_function
 
 import datetime
 import json
-import multiprocessing
 import os
 import time
 from argparse import Namespace
 from json import JSONDecodeError
+from queue import Empty, Queue
+from threading import Lock, Event
 
 import jsone
 import yaml
@@ -25,7 +26,35 @@ def format_date(timestamp, interval="day"):
     return datetime.datetime.fromtimestamp(timestamp).strftime("%Y-%m-%d")
 
 
-activedata_lock = multiprocessing.Lock()
+activedata_lock = Lock()
+activedata_work_items = Queue()  # HOLD (query, url, slot, event) TUPLES
+
+
+def extend(cls):
+    """
+    DECORATOR TO ADD METHODS TO CLASSES
+    :param cls: THE CLASS TO ADD THE METHOD TO
+    :return:
+    """
+    def extender(func):
+        setattr(cls, func.__name__, func)
+        return func
+    return extender
+
+
+@extend(Queue)
+def get_all(self):
+    """
+    Get all in queue, without waiting
+    :param self:
+    :return: list of queue items
+    """
+    acc = []
+    while True:
+        try:
+            acc.append(self.get(block=False))
+        except Empty:
+            return acc
 
 
 def query_activedata(query, url):
@@ -35,22 +64,68 @@ def query_activedata(query, url):
     :param str url: url to run query
     :returns str: json-formatted string.
     """
+    output_ready = Event()  # WAIT FOR OUTPUT
+    output = []  # EXPECT THE OUTPUT TO END UP HERE
+    activedata_work_items.put((query, url, output, output_ready))
+
     # Ensure we only run one ActiveData query at a time, to avoid overwhelming it.
     with activedata_lock:
-        start_time = time.time()
-        response = requests_retry_session().post(url, data=query, stream=True)
-        logger.debug(
-            "Query execution time {:.3f} ms".format((time.time() - start_time) * 1000.0)
-        )
-
-        if response.status_code != 200:
+        # get work from other waiting threads
+        all_work = activedata_work_items.get_all()
+        num_work = len(all_work)
+        if num_work > 1:
+            # THERE MULITPLE WORK ITEMS, PACK IT INTO {"tuple":[]}
+            _, url, _, _ = all_work[0]
+            query = json.dumps({"tuple": [json.loads(q) for q, _, _, _ in all_work]})
             try:
-                print(json.dumps(response.json(), indent=2))
-            except ValueError:
-                print(response.text)
-            response.raise_for_status()
+                response = _query_activedata(query, url)
+                for (_, _, o, r), d in zip(all_work, response['data']):
+                    o.append(d)
+                    r.set()
+            except Exception as cause:
+                for _, _, o, r in all_work:
+                    o.append(cause)
+                    r.set()
+        elif num_work:
+            # THERE IS ONE WORK ITEM, MAKE REGULAR CALL
+            query, url, o, r = all_work[0]
+            try:
+                response = _query_activedata(query, url)
+                o.append(response)
+                r.set()
+            except Exception as cause:
+                o.append(cause)
+                r.set()
 
-        return response.json()
+    output_ready.wait()
+    output = output[0]
+    if isinstance(output, Exception):
+        raise output
+    return output
+
+
+def _query_activedata(query, url):
+    """Runs the provided query against the ActiveData endpoint.
+
+    :param dict query: yaml-formatted query to be run.
+    :param str url: url to run query
+    :returns str: json-formatted string.
+    """
+    # Ensure we only run one ActiveData query at a time, to avoid overwhelming it.
+    start_time = time.time()
+    response = requests_retry_session().post(url, data=query, stream=True)
+    logger.debug(
+        "Query execution time {:.3f} ms".format((time.time() - start_time) * 1000.0)
+    )
+
+    if response.status_code != 200:
+        try:
+            print(json.dumps(response.json(), indent=2))
+        except ValueError:
+            print(response.text)
+        response.raise_for_status()
+
+    return response.json()
 
 
 def load_query(name):

@@ -105,6 +105,7 @@ Poetry can export the requirements
     
 A few more libraries are required to run the tests
 
+    pip install pytest
     pip install wheel
     pip install responses
     pip install flask
