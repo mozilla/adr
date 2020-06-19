@@ -57,6 +57,30 @@ def get_all(self):
             return acc
 
 
+def _query_activedata(query, url):
+    """Runs the provided query against the ActiveData endpoint.
+
+    :param dict query: yaml-formatted query to be run.
+    :param str url: url to run query
+    :returns str: json-formatted string.
+    """
+    # Ensure we only run one ActiveData query at a time, to avoid overwhelming it.
+    start_time = time.time()
+    response = requests_retry_session().post(url, data=query, stream=True)
+    logger.debug(
+        "Query execution time {:.3f} ms".format((time.time() - start_time) * 1000.0)
+    )
+
+    if response.status_code != 200:
+        try:
+            print(json.dumps(response.json(), indent=2))
+        except ValueError:
+            print(response.text)
+        response.raise_for_status()
+
+    return response.json()
+
+
 def query_activedata(query, url):
     """Runs the provided query against the ActiveData endpoint.
 
@@ -102,30 +126,6 @@ def query_activedata(query, url):
     if isinstance(output, Exception):
         raise output
     return output
-
-
-def _query_activedata(query, url):
-    """Runs the provided query against the ActiveData endpoint.
-
-    :param dict query: yaml-formatted query to be run.
-    :param str url: url to run query
-    :returns str: json-formatted string.
-    """
-    # Ensure we only run one ActiveData query at a time, to avoid overwhelming it.
-    start_time = time.time()
-    response = requests_retry_session().post(url, data=query, stream=True)
-    logger.debug(
-        "Query execution time {:.3f} ms".format((time.time() - start_time) * 1000.0)
-    )
-
-    if response.status_code != 200:
-        try:
-            print(json.dumps(response.json(), indent=2))
-        except ValueError:
-            print(response.text)
-        response.raise_for_status()
-
-    return response.json()
 
 
 def load_query(name):
