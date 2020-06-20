@@ -7,7 +7,7 @@ import time
 from argparse import Namespace
 from json import JSONDecodeError
 from queue import Empty, Queue
-from threading import Lock, Event
+from threading import Event, Lock
 
 import jsone
 import yaml
