@@ -734,7 +734,7 @@ description = "Python client for Taskcluster"
 name = "taskcluster"
 optional = false
 python-versions = "*"
-version = "30.1.1"
+version = "31.0.0"
 
 [package.dependencies]
 mohawk = ">=0.3.4"
@@ -900,7 +900,7 @@ version = "0.14.0"
 app = ["flask"]
 
 [metadata]
-content-hash = "b6d4399d95092c713d3c513158b69f0b90c732b314dd48f8f23667387915c52e"
+content-hash = "44440a01111041628d39c74604b7a86f85ed9c551a297a76f84ccdc574be38fe"
 python-versions = "^3.6"
 
 [metadata.files]
@@ -1204,9 +1204,9 @@ sphinxcontrib-serializinghtml = [
     {file = "sphinxcontrib_serializinghtml-1.1.4-py2.py3-none-any.whl", hash = "sha256:f242a81d423f59617a8e5cf16f5d4d74e28ee9a66f9e5b637a18082991db5a9a"},
 ]
 taskcluster = [
-    {file = "taskcluster-30.1.1-py2-none-any.whl", hash = "sha256:9f3548b1898e5f2d345257ea2822ac1d5ec1694e3acdabe3825550b126d2ad30"},
-    {file = "taskcluster-30.1.1-py3-none-any.whl", hash = "sha256:4789bfee6b95020c6361301d64c7b7b1518b029fa50c65521914b11898f41a36"},
-    {file = "taskcluster-30.1.1.tar.gz", hash = "sha256:96295013ce891c8d86c59353ff24e7e0c0a1d7d2e2e517ab424281af4ff6a64c"},
+    {file = "taskcluster-31.0.0-py2-none-any.whl", hash = "sha256:99ffacf79c549da21e665abac1d11fb5a1f73af0af5b0dccdc040ad457f2412a"},
+    {file = "taskcluster-31.0.0-py3-none-any.whl", hash = "sha256:611b67e81fd5d6395e0d2f0491bd44d6c2bdff9a1a280bb6881047e0139e1541"},
+    {file = "taskcluster-31.0.0.tar.gz", hash = "sha256:4bddc8985d680e362b641c1a6b08fe46b5489a820874e6e8acddfccc60aa8a48"},
 ]
 taskcluster-urls = [
     {file = "taskcluster-urls-12.1.0.tar.gz", hash = "sha256:1dc740c32c7beb31e11ed7ccf9da2d47a504acdb3170c8900649433b0fd16fb2"},
