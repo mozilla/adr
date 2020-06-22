@@ -60,7 +60,7 @@ flake8-import-order = "^0.18.1"
 pytest = "^5.4.3"
 tox = "^3.15.2"
 sphinx = "^3.1"
-sphinx_rtd_theme = "^0.4.3"
+sphinx_rtd_theme = "^0.5.0"
 codespell = "^1.17"
 responses = "^0.10.15"
 
