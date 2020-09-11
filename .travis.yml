@@ -2,6 +2,9 @@ language: python
 python:
     - "3.6"
 install:
+    # TravisCI comes with an incompatible version of importlib-metadata. Remove
+    # it so the correct version is installed below.
+    - pip uninstall -y importlib-metadata
     - pip install tox flake8 poetry
 script:
     - tox
