@@ -328,11 +328,11 @@ version = "0.10.0"
 
 [[package]]
 category = "main"
-description = "('A data-structure parameterization system written for embedding context in JSON objects',)"
+description = "A data-structure parameterization system written for embedding context in JSON objects"
 name = "json-e"
 optional = false
 python-versions = "*"
-version = "3.0.2"
+version = "4.3.0"
 
 [package.extras]
 release = ["towncrier"]
@@ -898,7 +898,7 @@ version = "0.14.0"
 app = ["flask"]
 
 [metadata]
-content-hash = "1acb3609e3a9bad29b33d4f20affb4e100abefd5c723cc56287e5193513fb1d9"
+content-hash = "0680ead37870da4bc2589cdbd052b46cada36de1a68b5b8db444512922244ced"
 lock-version = "1.0"
 python-versions = "^3.6"
 
@@ -1034,7 +1034,7 @@ jmespath = [
     {file = "jmespath-0.10.0.tar.gz", hash = "sha256:b85d0567b8666149a93172712e68920734333c0ce7e89b78b3e987f71e5ed4f9"},
 ]
 json-e = [
-    {file = "json-e-3.0.2.tar.gz", hash = "sha256:35dc96ce04f0caece560dc18266af7f0ffb780955273ffa20814be65447cad49"},
+    {file = "json-e-4.3.0.tar.gz", hash = "sha256:00559fe9451cc059aa4997e801e19f421c7d6393e2a9b37e621cd1031b6d496a"},
 ]
 loguru = [
     {file = "loguru-0.5.2-py3-none-any.whl", hash = "sha256:a5e5e196b9958feaf534ac2050171d16576bae633074ce3e73af7dda7e9a58ae"},
