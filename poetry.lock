@@ -740,7 +740,7 @@ description = "Python client for Taskcluster"
 name = "taskcluster"
 optional = false
 python-versions = "*"
-version = "37.1.0"
+version = "37.2.0"
 
 [package.dependencies]
 mohawk = ">=0.3.4"
@@ -1208,9 +1208,9 @@ sphinxcontrib-serializinghtml = [
     {file = "sphinxcontrib_serializinghtml-1.1.4-py2.py3-none-any.whl", hash = "sha256:f242a81d423f59617a8e5cf16f5d4d74e28ee9a66f9e5b637a18082991db5a9a"},
 ]
 taskcluster = [
-    {file = "taskcluster-37.1.0-py2-none-any.whl", hash = "sha256:30d7a15544a69fe9161bef5f5facedbb01de384cd9a89dcd16131dbcf8f5ae09"},
-    {file = "taskcluster-37.1.0-py3-none-any.whl", hash = "sha256:67332fcb93ab662712a74ade9fcc3fcf30333913f23c53f50fb42974ae262ea0"},
-    {file = "taskcluster-37.1.0.tar.gz", hash = "sha256:660e9ff10821a39f6ed5e72c99a36ebf3654b1a639aed3b3361eb83ea3a85f9a"},
+    {file = "taskcluster-37.2.0-py2-none-any.whl", hash = "sha256:7113e5c0d013ce653907656c30dff52c6f1c0e0825b88bb8922772c8d20b5f43"},
+    {file = "taskcluster-37.2.0-py3-none-any.whl", hash = "sha256:a3c0b28465ceb8c79cb591b0d4a85e797f66a239275c2a59296c265e19fed8bb"},
+    {file = "taskcluster-37.2.0.tar.gz", hash = "sha256:a25a0fc8d1cbe340cdcb42e6e193c06e245b440a024515a8a07ad469ba2c11a6"},
 ]
 taskcluster-urls = [
     {file = "taskcluster-urls-13.0.1.tar.gz", hash = "sha256:b25e122ecec249c4299ac7b20b08db76e3e2025bdaeb699a9d444556de5fd367"},
