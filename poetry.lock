@@ -850,7 +850,7 @@ app = ["flask"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.6"
-content-hash = "30b48da2f6553977368238d9d284df727e47b96b244e889e8ac2737292743969"
+content-hash = "16b225951cf8111a032f8c8b02dc84c9237b1b32ee861b092f0229595c774dab"
 
 [metadata.files]
 aiocontextvars = [
