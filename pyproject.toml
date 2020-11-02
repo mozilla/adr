@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "adr"
-version = "0.19.0"
+version = "0.19.1"
 description = "Utility for running ActiveData recipes"
 
 packages = [
