@@ -32,27 +32,26 @@ adr-test = "adr.export.test:cli"
 adr-app = "app.app:main"
 
 [tool.poetry.dependencies]
-python = "^3.6"
-
-json-e = "^3.0.0"
-requests = "^2.21.0"
-terminaltables = "^3.1.0"
-pyyaml = "^5.1"
-markdown = "^3.0.1"
-docutils = ">=0.14,<0.17"
-pygments = "^2.3.1"
-appdirs = "^1.4"
-tomlkit = "^0.7.0"
-cachy = ">=0.2,<0.4"
-loguru = ">=0.2.5,<0.6.0"
-boto3 = "^1.12.43"
-taskcluster = ">=29.0.1,<39.0.0"
-zstandard = ">=0.13,<0.15"
+python = ">=3.6,<4"
+json-e = "~3"
+requests = "~2"
+terminaltables = "~3"
+pyyaml = "~5"
+markdown = "~3"
+docutils = "~0"
+pygments = "~2"
+appdirs = "~1"
+tomlkit = "~0"
+cachy = "~0"
+loguru = "~0"
+boto3 = "~1"
+taskcluster = "~38"
+zstandard = "~0"
 
 # Optional dependencies
-flask = { version = "^1.0.2", optional = true }
-redis = { version = "^3.2", optional = true }
-python3-memcached = { version = "^1.51", optional = true }
+flask = { version = "~1", optional = true }
+redis = { version = "~3", optional = true }
+python3-memcached = { version = "~1", optional = true }
 
 [tool.poetry.dev-dependencies]
 flake8 = "^3.8.4"

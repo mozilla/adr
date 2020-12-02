@@ -975,8 +975,8 @@ version = "0.14.0"
 app = ["flask"]
 
 [metadata]
-content-hash = "63a6b96fe7ca34c2ff36ece22188dac6c61db873c2837ba4d74b8f493e011182"
-python-versions = "^3.6"
+content-hash = "ee04a4c4c414afb435bcc1b71f44370b4aafc29473a59e0e31f1352242238ad3"
+python-versions = ">=3.6,<4"
 
 [metadata.files]
 aiocontextvars = [
