@@ -45,7 +45,7 @@ tomlkit = "~0"
 cachy = "~0"
 loguru = "~0"
 boto3 = "~1"
-taskcluster = "~38"
+taskcluster = ">=38,<40"
 zstandard = "~0"
 
 # Optional dependencies
