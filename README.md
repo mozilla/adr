@@ -1,3 +1,6 @@
+
+### Archived due to ActiveData being decommissioned
+
 [![Build Status](https://travis-ci.org/mozilla/adr.svg?branch=master)](https://travis-ci.org/mozilla/adr)
 [![PyPI version](https://badge.fury.io/py/adr.svg)](https://badge.fury.io/py/adr)
 [![PyPI version](https://readthedocs.org/projects/active-data-recipes/badge/?version=latest)](https://active-data-recipes.readthedocs.io)
