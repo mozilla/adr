@@ -2,12 +2,15 @@ from __future__ import absolute_import, print_function, unicode_literals
 
 import json
 from io import StringIO as IO
+from threading import Thread
+from time import sleep
 
+import responses
 import yaml
 
-from adr import config
+from adr import config, configuration
 from adr import query
-from adr.query import format_query
+from adr.query import format_query, query_activedata
 
 
 class RunQuery(object):
@@ -79,3 +82,35 @@ def test_query(monkeypatch, query_test, set_config):
         print_diff()
         assert result == query_test["expected"]
         assert debug_url is None
+
+
+@responses.activate
+def test_threaded_query():
+    url = configuration.config.url
+    dummy_query = json.dumps({"from": "dummy"})
+
+    def request_callback(request):
+        payload = json.loads(request.body)
+        many_queries = payload.get("tuple")
+        if many_queries is None:
+            # THE FIRST QUERY WILL TAKE A WHILE, THIS WILL
+            # GIVE TIME FOR THE OTHER THREADS WILL FILL activedata_work_items
+            sleep(1)
+            return 200, {}, json.dumps("x")
+        assert len(many_queries) == 3
+        return 200, {}, json.dumps({"data": ["a", "b", "c"]})
+
+    responses.add_callback(responses.POST, url, callback=request_callback)
+
+    result = [None] * 4
+
+    def requestor(i):
+        result[i] = query_activedata(dummy_query, url)
+
+    threads = [Thread(target=requestor, args=(i,)) for i in range(4)]
+    for t in threads:
+        t.start()
+    for t in threads:
+        t.join()
+
+    assert result == ["x", "a", "b", "c"]

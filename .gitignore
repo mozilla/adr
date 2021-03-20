@@ -110,3 +110,4 @@ ENV/
 *.iml
 
 /requirements.txt
+/requirements.in
